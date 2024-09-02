@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "212956061011",
+    "project_id": "banquetmanager-12503",
+    "storage_bucket": "banquetmanager-12503.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:212956061011:android:6110ea179a0e7294b215a6",
+        "android_client_info": {
+          "package_name": "com.android.banquetmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMBormtks4XVxprIdVaVlOxtCNCTyTfjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
