@@ -1,6 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.gms.google.services)
+    id ("kotlin-kapt")
+    id ("com.google.dagger.hilt.android")
+    id ("dagger.hilt.android.plugin")
 }
 
 android {
@@ -59,6 +63,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +71,40 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Coroutines
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.core)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
+    // Lifecycle
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.viewmodel.compose)
+
+    // Navigation
+    implementation(libs.navigation.compose)
+    implementation(libs.hilt.navigation.compose)
+
+    //Circular progress bar
+    implementation(libs.androidx.material3)
+
+    //room database
+    val room_version = "2.6.1"
+
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+
+    // To use Kotlin Symbol Processing (KSP)
+    kapt("androidx.room:room-compiler:$room_version")
+
+    //coroutine for room db
+    implementation(libs.room.ktx)
+    implementation("androidx.compose.material:material:1.6.8")
+    implementation ("androidx.work:work-runtime-ktx:2.9.1") // For WorkManager
+    implementation ("androidx.hilt:hilt-work:1.2.0")
+
+    implementation ("androidx.compose.material:material-icons-extended:1.6.8")
 }
