@@ -1,5 +1,6 @@
 package com.android.banquetmanager.di
 
+import com.android.banquetmanager.data.repository.BookingRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides

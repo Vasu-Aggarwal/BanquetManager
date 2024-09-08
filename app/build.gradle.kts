@@ -12,7 +12,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.android.banquetmanager"
+        applicationId = "com.banquetmanager"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
