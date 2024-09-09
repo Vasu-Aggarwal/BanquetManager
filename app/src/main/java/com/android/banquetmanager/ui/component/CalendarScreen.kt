@@ -1,4 +1,4 @@
-package com.android.banquetmanager.ui.screen
+package com.android.banquetmanager.ui.component
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -22,11 +22,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.android.banquetmanager.ui.screen.DateDetailsScreen
+import com.android.banquetmanager.ui.screen.Screen
 import java.util.Calendar
 
 
 @Composable
-fun CalendarScreen() {
+fun CalendarScreen(navController: NavController) {
     var currentYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var currentMonth by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH) + 1) }
     var selectedDate by remember { mutableStateOf<Pair<Int, Int>?>(null) }
@@ -47,10 +51,13 @@ fun CalendarScreen() {
         )
 
         selectedDate?.let {
-            Text(
-                text = "Selected Date: ${it.first}/${it.second}/$currentYear",
-                modifier = Modifier.padding(16.dp)
-            )
+            val date = "${it.first}-${it.second}-$currentYear"
+            navController.navigate(Screen.DateDetailsScreen.createRoute(date))
+//            DateDetailsScreen(selectedDate!!)
+//            Text(
+//                text = "Selected Date: ${it.first}/${it.second}/$currentYear",
+//                modifier = Modifier.padding(16.dp)
+//            )
         }
     }
 }
