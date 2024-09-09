@@ -15,7 +15,7 @@ data class Event(
     val flowerAmount: Double = 0.0,
     val foodType: String = "",
     val functionType: String = "",
-    val menu: DocumentReference? = null,
+    val menu: String? = "",
     val packageAmount: Double = 0.0,
     val pax: Int = 0,
     val status: Int = 0,

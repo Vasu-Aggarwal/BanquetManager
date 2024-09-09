@@ -12,7 +12,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.banquetmanager"
+        applicationId = "com.android.banquetmanager"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -107,4 +107,7 @@ dependencies {
     implementation ("androidx.hilt:hilt-work:1.2.0")
 
     implementation ("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation ("com.prolificinteractive:material-calendarview:1.4.3"){
+        exclude("com.android.support",  "support-compat")
+    }
 }
