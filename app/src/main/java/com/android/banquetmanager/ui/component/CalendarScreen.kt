@@ -53,11 +53,6 @@ fun CalendarScreen(navController: NavController) {
         selectedDate?.let {
             val date = "${it.first}-${it.second}-$currentYear"
             navController.navigate(Screen.DateDetailsScreen.createRoute(date))
-//            DateDetailsScreen(selectedDate!!)
-//            Text(
-//                text = "Selected Date: ${it.first}/${it.second}/$currentYear",
-//                modifier = Modifier.padding(16.dp)
-//            )
         }
     }
 }

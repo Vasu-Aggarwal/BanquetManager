@@ -16,17 +16,16 @@ fun App(){
             CalendarScreen(navController = navController)
         }
 
-        composable(route = Screen.DateDetailsScreen.route,
-            arguments = listOf(navArgument("date") { type = NavType.StringType })
-        )
-        { backStackEntry ->
-            val date = backStackEntry.arguments?.getString("date")
+        composable(
+            route = "dateDetailsScreen/{datePair}",
+            arguments = listOf(navArgument("datePair") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val date = backStackEntry.arguments?.getString("datePair")
             date?.let {
-                DateDetailsScreen(it)
+                DateDetailsScreen(date)
             }
         }
     }
-
 }
 
 sealed class Screen(val route: String){
