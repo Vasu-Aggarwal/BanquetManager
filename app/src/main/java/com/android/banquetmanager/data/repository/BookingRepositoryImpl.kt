@@ -11,21 +11,20 @@ import javax.inject.Inject
 class BookingRepositoryImpl @Inject constructor(private val firebaseFirestore: FirebaseFirestore) : BookingRepository {
     override suspend fun getBookingsByDate(date: String): List<Event> {
         return try {
-            // Fetch document with a specific ID
-            val documentSnapshot = firebaseFirestore.collection("event")
-                .document("4pZigHtanBW1k7MFQG72") // Specify the document ID here
+            // Fetch documents that match the specified date
+            val querySnapshot = firebaseFirestore.collection("event")
+                .whereEqualTo("dateBooked", date) // Adjust the field name if different
                 .get()
                 .await() // Use await to suspend until the result is available
 
-            Log.d("Booking date I found:", "getBookingsByDate: ${documentSnapshot.data}")
+            Log.d("Booking date found:", "getBookingsByDate: ${querySnapshot.documents}")
 
-            // If the document exists, convert it to an Event object
-            if (documentSnapshot.exists()) {
-                listOf(documentSnapshot.toObject(Event::class.java)!!) // Convert to Event and return as list
-            } else {
-                Log.d("Document not found", "No document exists with the given ID.")
-                emptyList() // Return empty list if document doesn't exist
+            // Convert the documents to Event objects
+            val events = querySnapshot.documents.mapNotNull { document ->
+                document.toObject(Event::class.java) // Convert each document to Event
             }
+
+            events // Return the list of events
         } catch (e: Exception) {
             Log.e("Firestore Error", "Error getting documents", e)
             emptyList() // Handle exceptions by returning an empty list

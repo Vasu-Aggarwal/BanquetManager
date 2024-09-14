@@ -10,14 +10,14 @@ data class Event(
     val createdOn: Timestamp = Timestamp.now(),
     val dj: Boolean = false,
     val djAmount: Double = 0.0,
-    val extraPlate: Int = 0,
+    val extraPlate: Long = 0,
     val flower: Boolean = false,
     val flowerAmount: Double = 0.0,
     val foodType: String = "",
     val functionType: String = "",
     val menu: String? = "",
     val packageAmount: Double = 0.0,
-    val pax: Int = 0,
-    val status: Int = 0,
+    val pax: Long = 0,
+    val status: Long = 0,
     val dateBooked: String = ""
 )

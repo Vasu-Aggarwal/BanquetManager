@@ -1,40 +1,49 @@
 package com.android.banquetmanager.ui.component
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.android.banquetmanager.ui.screen.DateDetailsScreen
-import com.android.banquetmanager.ui.screen.Screen
-import java.util.Calendar
+import com.android.banquetmanager.data.model.Event
+import com.android.banquetmanager.data.viewmodel.BookingViewmodel
+import kotlinx.coroutines.launch
+import java.util.*
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarScreen(navController: NavController) {
+fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = hiltViewModel()) {
     var currentYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var currentMonth by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH) + 1) }
     var selectedDate by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var events by remember { mutableStateOf<List<Event>>(emptyList()) }
+    val scope = rememberCoroutineScope()
+
     val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState()
+
+    // Main UI
+    LaunchedEffect(selectedDate) {
+        if (selectedDate != null) {
+            val date = "${String.format("%02d", selectedDate!!.first)}/${String.format("%02d", selectedDate!!.second)}/$currentYear"
+            events = viewModel.getBookingsByDate(date)
+            if (events.isNotEmpty()) {
+                scope.launch {
+                    sheetState.show()
+                }
+            }
+        }
+    }
 
     Column {
         MonthView(
@@ -42,17 +51,54 @@ fun CalendarScreen(navController: NavController) {
             currentMonth = currentMonth,
             onDateSelected = { day, month, year ->
                 selectedDate = Pair(day, month)
-                Toast.makeText(context, "Selected date: $day/$month/$year", Toast.LENGTH_SHORT).show()
+                showBottomSheet = true
             },
             onMonthChanged = { newMonth, newYear ->
                 currentMonth = newMonth
                 currentYear = newYear
+                showBottomSheet = false
             }
         )
 
-        selectedDate?.let {
-            val date = "${it.first}-${it.second}-$currentYear"
-            navController.navigate(Screen.DateDetailsScreen.createRoute(date))
+//        // Navigate to details screen if needed
+//        selectedDate?.let {
+//            val date = "${it.first}-${it.second}-$currentYear"
+//            navController.navigate(Screen.DateDetailsScreen.createRoute(date))
+//        }
+    }
+
+    // Bottom sheet content
+    @Composable
+    fun BottomSheetContent(onDismiss: () -> Unit) {
+        if (events.isNotEmpty()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                events.forEach { event ->
+                    Text(text = event.banquetLocation, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = event.functionType, style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        } else {
+            Text(text = "No events found", modifier = Modifier.padding(16.dp))
+        }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                scope.launch {
+                    sheetState.hide()
+                    showBottomSheet = false
+                }
+            },
+            sheetState = sheetState
+        ){
+            BottomSheetContent(onDismiss = {
+                scope.launch {
+                    sheetState.hide()
+                    showBottomSheet = false
+                }
+            })
         }
     }
 }
@@ -64,31 +110,24 @@ fun MonthView(
     onDateSelected: (Int, Int, Int) -> Unit,
     onMonthChanged: (Int, Int) -> Unit
 ) {
-    var selectedDay by remember { mutableStateOf<Int?>(null) } // Track the selected day
+    var selectedDay by remember { mutableStateOf<Int?>(null) }
     val daysInMonth = remember { getDaysInMonth(currentMonth, currentYear) }
     val calendar = Calendar.getInstance().apply {
-        set(currentYear, currentMonth - 1, 1) // Set the calendar to the first day of the current month
+        set(currentYear, currentMonth - 1, 1)
     }
-    val firstDayOfMonth = calendar.get(Calendar.DAY_OF_WEEK) // Day of the week for the first day of the month
-
-    // Get today's date
+    val firstDayOfMonth = calendar.get(Calendar.DAY_OF_WEEK)
     val today = Calendar.getInstance()
     val todayDay = today.get(Calendar.DAY_OF_MONTH)
     val todayMonth = today.get(Calendar.MONTH) + 1
     val todayYear = today.get(Calendar.YEAR)
-
-    // Month names for display
     val monthNames = arrayOf(
-        "January", "February", "March",
-        "April", "May", "June",
-        "July", "August", "September",
-        "October", "November", "December"
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
     )
 
     Column(
         modifier = Modifier.padding(top = 60.dp)
     ) {
-        // Header Row with Month Navigation
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = {
                 val newMonth = if (currentMonth == 1) 12 else currentMonth - 1
@@ -113,7 +152,6 @@ fun MonthView(
             }
         }
 
-        // Header Row for Days
         Row {
             for (dayOfWeek in arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")) {
                 Text(
@@ -126,7 +164,6 @@ fun MonthView(
             }
         }
 
-        // Days Grid
         var day = 1
         for (row in 0 until 6) {
             Row {
@@ -151,7 +188,7 @@ fun MonthView(
                                 .padding(8.dp)
                                 .background(
                                     if (selectedDay == dayToDisplay) Color.Blue else Color.Transparent
-                                ) // Apply background color conditionally
+                                )
                                 .height(50.dp)
                                 .clickable {
                                     selectedDay = dayToDisplay
@@ -164,12 +201,11 @@ fun MonthView(
                                 textAlign = TextAlign.Center
                             )
 
-                            // Add a bullet or marker below the current day
                             if (isToday) {
                                 Text(
                                     text = "•",
                                     textAlign = TextAlign.Center,
-                                    color = Color.Red, // Customize the bullet color
+                                    color = Color.Red,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
@@ -182,10 +218,9 @@ fun MonthView(
     }
 }
 
-
 private fun getDaysInMonth(month: Int, year: Int): Int {
     val calendar = Calendar.getInstance().apply {
-        set(year, month - 1, 1) // Set to the first day of the month
+        set(year, month - 1, 1)
     }
-    return calendar.getActualMaximum(Calendar.DAY_OF_MONTH) // Get the maximum number of days in the month
+    return calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 }
