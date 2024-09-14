@@ -17,20 +17,20 @@ fun App(){
         }
 
         composable(
-            route = "dateDetailsScreen/{datePair}",
-            arguments = listOf(navArgument("datePair") { type = NavType.StringType })
+            route = "dateDetailsScreen/{eventId}",
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val date = backStackEntry.arguments?.getString("datePair")
-            date?.let {
-                DateDetailsScreen(date)
+            val eventId = backStackEntry.arguments?.getString("eventId")
+            eventId?.let {
+                DateDetailsScreen(eventId)
             }
         }
     }
 }
 
 sealed class Screen(val route: String){
-    data object DateDetailsScreen: Screen("dateDetailsScreen/{selectedDate}"){
-        fun createRoute(selectedDate: String) = "dateDetailsScreen/$selectedDate"
+    data object DateDetailsScreen: Screen("dateDetailsScreen/{eventId}"){
+        fun createRoute(eventId: String) = "dateDetailsScreen/$eventId"
     }
     data object CalendarScreen: Screen("calendarScreen")
 }

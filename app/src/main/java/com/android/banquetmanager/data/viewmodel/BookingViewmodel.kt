@@ -13,4 +13,8 @@ class BookingViewmodel @Inject constructor(
     suspend fun getBookingsByDate(date: String): List<Event> {
         return bookingRepository.getBookingsByDate(date)
     }
+
+    suspend fun getBookingByEventId(eventId: String): Event {
+        return bookingRepository.getBookingByEventId(eventId)
+    }
 }

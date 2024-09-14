@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 
 data class Event(
+    val eventId: String = "",
     val banquetLocation: String = "",
     val cocktail: Boolean = false,
     val cocktailAmount: Double = 0.0,

@@ -1,6 +1,7 @@
 package com.android.banquetmanager.ui.component
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
+import com.android.banquetmanager.ui.screen.Screen
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -59,28 +61,6 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
                 showBottomSheet = false
             }
         )
-
-//        // Navigate to details screen if needed
-//        selectedDate?.let {
-//            val date = "${it.first}-${it.second}-$currentYear"
-//            navController.navigate(Screen.DateDetailsScreen.createRoute(date))
-//        }
-    }
-
-    // Bottom sheet content
-    @Composable
-    fun BottomSheetContent(onDismiss: () -> Unit) {
-        if (events.isNotEmpty()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                events.forEach { event ->
-                    Text(text = event.banquetLocation, style = MaterialTheme.typography.bodyMedium)
-                    Text(text = event.functionType, style = MaterialTheme.typography.bodySmall)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
-        } else {
-            Text(text = "No events found", modifier = Modifier.padding(16.dp))
-        }
     }
 
     if (showBottomSheet) {
@@ -93,7 +73,10 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
             },
             sheetState = sheetState
         ){
-            BottomSheetContent(onDismiss = {
+            BottomSheetContent(events = events, onEventClick = {
+                // Navigate to details screen if needed
+                navController.navigate(Screen.DateDetailsScreen.createRoute(it.eventId))
+             }, onDismiss = {
                 scope.launch {
                     sheetState.hide()
                     showBottomSheet = false
@@ -217,6 +200,43 @@ fun MonthView(
         }
     }
 }
+
+@Composable
+fun BottomSheetContent(events: List<Event>, onDismiss: () -> Unit, onEventClick: (Event) -> Unit) {
+    if (events.isNotEmpty()) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            events.forEach { event ->
+                // Create a clickable Row or Column for each event
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onEventClick(event) }
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = event.banquetLocation,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = event.functionType,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+        }
+    } else {
+        Text(
+            text = "No events found",
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
 
 private fun getDaysInMonth(month: Int, year: Int): Int {
     val calendar = Calendar.getInstance().apply {

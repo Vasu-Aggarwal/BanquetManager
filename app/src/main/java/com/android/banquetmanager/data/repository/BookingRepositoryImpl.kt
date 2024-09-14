@@ -40,4 +40,28 @@ class BookingRepositoryImpl @Inject constructor(private val firebaseFirestore: F
 
         }
     }
+
+    override suspend fun getBookingByEventId(eventId: String): Event {
+        return try {
+            // Fetch document with the specific ID
+            val documentSnapshot = firebaseFirestore.collection("event")
+                .document(eventId) // Use the eventId passed to the method
+                .get()
+                .await() // Use await to suspend until the result is available
+
+            Log.d("Booking event details:", "getBookingByEventId: ${documentSnapshot.data}")
+
+            // If the document exists, convert it to an Event object
+            if (documentSnapshot.exists()) {
+                documentSnapshot.toObject(Event::class.java) ?: throw NoSuchElementException("Event not found")
+            } else {
+                throw NoSuchElementException("No document exists with the given ID.")
+            }
+        } catch (e: Exception) {
+            Log.e("Firestore Error", "Error getting document", e)
+            // Handle exceptions by throwing a custom exception or returning a default event
+            throw e // You may replace this with a custom exception if needed
+        }
+    }
+
 }

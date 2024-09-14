@@ -1,9 +1,12 @@
 package com.android.banquetmanager.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -15,23 +18,22 @@ import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 
 @Composable
 fun DateDetailsScreen(
-    date: String,
-    viewModel: BookingViewmodel = hiltViewModel()
+    eventId: String,
+    bookingViewmodel: BookingViewmodel = hiltViewModel()
 ) {
-    var events by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var event by remember { mutableStateOf<Event?>(null) }
 
-    LaunchedEffect(date) {
-        events = viewModel.getBookingsByDate(date)
-        Log.d("Booking date I found: ", "DateDetailsScreen: ${events.getOrNull(0)}")
+    LaunchedEffect(eventId) {
+        event = bookingViewmodel.getBookingByEventId(eventId)
     }
 
     // Display the first event if it exists
-    events.getOrNull(0)?.let { event ->
-        EventDetailsCard(event = event)
+    event?.let {
+        EventDetailsCard(event = it)
     } ?: run {
         // Show if no events are found for the selected date
         Text(
-            text = "No events found for $date",
+            text = "No events found for $eventId",
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
@@ -46,7 +48,7 @@ fun EventDetailsCard(event: Event) {
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(8.dp),
-        elevation = 4.dp
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
