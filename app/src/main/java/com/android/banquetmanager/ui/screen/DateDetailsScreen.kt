@@ -8,23 +8,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.repository.BookingRepository
+import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Composable
-fun DateDetailsScreen (date: String) {
+fun DateDetailsScreen (date: String, viewModel: BookingViewmodel = hiltViewModel()) {
 
-    lateinit var firebaseFirestore: FirebaseFirestore
-    lateinit var bookingRepository: BookingRepository
-    var events: List<Event>
+    var events: List<Event> = emptyList()
 
-    LaunchedEffect(Unit) {
-        events = bookingRepository.getBookingsByDate(date)
-        Log.d("Booking date I found: ", "DateDetailsScreen: ${events[0]}")
+    LaunchedEffect(date) {
+        events = viewModel.getBookingsByDate(date)
+        Log.d("Booking date I found: ", "DateDetailsScreen: ${events.getOrNull(0)}")
     }
-    Text(text = "This is details ${date}", modifier = Modifier.padding(top = 20.dp))
+
+    Text(text = "This is details for $date", modifier = Modifier.padding(top = 20.dp))
 }
