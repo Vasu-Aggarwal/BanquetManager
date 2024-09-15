@@ -30,7 +30,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
     var showBottomSheet by remember { mutableStateOf(false) }
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     val scope = rememberCoroutineScope()
-    var banquetLocations: List<String> = listOf("Test", "Test2")
+    val banquetLocations: List<String> = listOf("Test", "Test2")
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
@@ -58,6 +58,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
             onMonthChanged = { newMonth, newYear ->
                 currentMonth = newMonth
                 currentYear = newYear
+                selectedDate = null
                 showBottomSheet = false
             }
         )
@@ -68,20 +69,25 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
             onDismissRequest = {
                 scope.launch {
                     sheetState.hide()
+                    selectedDate = null
                     showBottomSheet = false
                 }
             },
             sheetState = sheetState
         ){
-            BottomSheetContent(events = events, banquetLocations = banquetLocations, onEventClick = {
-                // Navigate to details screen if needed
-                navController.navigate(Screen.DateDetailsScreen.createRoute(it!!.eventId))
-             }, onDismiss = {
-                scope.launch {
-                    sheetState.hide()
-                    showBottomSheet = false
-                }
-            })
+            if (selectedDate != null) {
+                val date = "${String.format("%02d", selectedDate!!.first)}/${String.format("%02d", selectedDate!!.second)}/$currentYear"
+                BottomSheetContent(date, events = events, banquetLocations = banquetLocations, onEventClick = {
+                    // Navigate to details screen if needed
+                    navController.navigate(Screen.DateDetailsScreen.createRoute(it!!.eventId))
+                }, onDismiss = {
+                    scope.launch {
+                        sheetState.hide()
+                        selectedDate = null
+                        showBottomSheet = false
+                    }
+                })
+            }
         }
     }
 }
@@ -169,9 +175,6 @@ fun MonthView(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(8.dp)
-                                .background(
-                                    if (selectedDay == dayToDisplay) Color.Blue else Color.Transparent
-                                )
                                 .height(50.dp)
                                 .clickable {
                                     selectedDay = dayToDisplay
@@ -203,6 +206,7 @@ fun MonthView(
 
 @Composable
 fun BottomSheetContent(
+    date: String,
     events: List<Event>,
     banquetLocations: List<String>, // List of all banquet locations
     onDismiss: () -> Unit,
@@ -210,7 +214,7 @@ fun BottomSheetContent(
 ) {
     // Group events by banquet location
     val groupedEvents = events.groupBy { it.banquetLocation }
-
+    Text(text = date)
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
@@ -253,11 +257,17 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isLunchBooked) {
                                     // Handle creating a new lunch booking
-                                    Log.d("I check slot", "$banquetLocation: Lunch slot is available for booking.")
+                                    Log.d(
+                                        "I check slot",
+                                        "$banquetLocation: Lunch slot is available for booking."
+                                    )
                                     onEventClick(null) // No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
-                                    Log.d("I check slot", "$banquetLocation: Lunch is already booked.")
+                                    Log.d(
+                                        "I check slot",
+                                        "$banquetLocation: Lunch is already booked."
+                                    )
                                     lunchEvent?.let { onEventClick(it) } // Pass the booked event
                                 }
                             }
@@ -282,11 +292,17 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isDinnerBooked) {
                                     // Handle creating a new dinner booking
-                                    Log.d("I check slot", "$banquetLocation: Dinner slot is available for booking.")
+                                    Log.d(
+                                        "I check slot",
+                                        "$banquetLocation: Dinner slot is available for booking."
+                                    )
                                     onEventClick(null) // No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
-                                    Log.d("I check slot", "$banquetLocation: Dinner is already booked.")
+                                    Log.d(
+                                        "I check slot",
+                                        "$banquetLocation: Dinner is already booked."
+                                    )
                                     dinnerEvent?.let { onEventClick(it) } // Pass the booked event
                                 }
                             }
