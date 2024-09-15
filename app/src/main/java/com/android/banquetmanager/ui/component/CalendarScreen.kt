@@ -77,7 +77,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
         ){
             if (selectedDate != null) {
                 val date = "${String.format("%02d", selectedDate!!.first)}/${String.format("%02d", selectedDate!!.second)}/$currentYear"
-                BottomSheetContent(date, events = events, banquetLocations = banquetLocations, onEventClick = {
+                BottomSheetContent(navController, date, events = events, banquetLocations = banquetLocations, onEventClick = {
                     // Navigate to details screen if needed
                     navController.navigate(Screen.DateDetailsScreen.createRoute(it!!.eventId))
                 }, onDismiss = {
@@ -206,6 +206,7 @@ fun MonthView(
 
 @Composable
 fun BottomSheetContent(
+    navController: NavController,
     date: String,
     events: List<Event>,
     banquetLocations: List<String>, // List of all banquet locations
@@ -257,17 +258,9 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isLunchBooked) {
                                     // Handle creating a new lunch booking
-                                    Log.d(
-                                        "I check slot",
-                                        "$banquetLocation: Lunch slot is available for booking."
-                                    )
-                                    onEventClick(null) // No event means it's available for booking
+                                    navController.navigate(Screen.AddEventBooking.createRoute("1", "1"))// No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
-                                    Log.d(
-                                        "I check slot",
-                                        "$banquetLocation: Lunch is already booked."
-                                    )
                                     lunchEvent?.let { onEventClick(it) } // Pass the booked event
                                 }
                             }
@@ -292,17 +285,9 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isDinnerBooked) {
                                     // Handle creating a new dinner booking
-                                    Log.d(
-                                        "I check slot",
-                                        "$banquetLocation: Dinner slot is available for booking."
-                                    )
-                                    onEventClick(null) // No event means it's available for booking
+                                    navController.navigate(Screen.AddEventBooking.createRoute("1", "1"))// No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
-                                    Log.d(
-                                        "I check slot",
-                                        "$banquetLocation: Dinner is already booked."
-                                    )
                                     dinnerEvent?.let { onEventClick(it) } // Pass the booked event
                                 }
                             }
