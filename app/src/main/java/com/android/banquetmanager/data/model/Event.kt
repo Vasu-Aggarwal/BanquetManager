@@ -20,5 +20,7 @@ data class Event(
     val packageAmount: Double = 0.0,
     val pax: Long = 0,
     val status: Long = 0,
-    val dateBooked: String = ""
+    val dateBooked: String = "",
+    val lunch: Boolean = false,
+    val dinner: Boolean = false
 )

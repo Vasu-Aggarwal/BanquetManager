@@ -30,7 +30,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
     var showBottomSheet by remember { mutableStateOf(false) }
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     val scope = rememberCoroutineScope()
-
+    var banquetLocations: List<String> = listOf("Test", "Test2")
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
@@ -73,9 +73,9 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
             },
             sheetState = sheetState
         ){
-            BottomSheetContent(events = events, onEventClick = {
+            BottomSheetContent(events = events, banquetLocations = banquetLocations, onEventClick = {
                 // Navigate to details screen if needed
-                navController.navigate(Screen.DateDetailsScreen.createRoute(it.eventId))
+                navController.navigate(Screen.DateDetailsScreen.createRoute(it!!.eventId))
              }, onDismiss = {
                 scope.launch {
                     sheetState.hide()
@@ -202,41 +202,111 @@ fun MonthView(
 }
 
 @Composable
-fun BottomSheetContent(events: List<Event>, onDismiss: () -> Unit, onEventClick: (Event) -> Unit) {
-    if (events.isNotEmpty()) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            events.forEach { event ->
-                // Create a clickable Row or Column for each event
-                Row(
+fun BottomSheetContent(
+    events: List<Event>,
+    banquetLocations: List<String>, // List of all banquet locations
+    onDismiss: () -> Unit,
+    onEventClick: (Event?) -> Unit
+) {
+    // Group events by banquet location
+    val groupedEvents = events.groupBy { it.banquetLocation }
+
+    Column(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        // Iterate over the list of all banquet locations
+        banquetLocations.forEach { banquetLocation ->
+            // Get the events for the current banquet location
+            val eventsForLocation = groupedEvents[banquetLocation] ?: emptyList()
+
+            // Determine slot availability for lunch and dinner
+            val lunchEvent = eventsForLocation.firstOrNull { !it.lunch }
+            val dinnerEvent = eventsForLocation.firstOrNull { !it.dinner }
+
+            val isLunchBooked = lunchEvent != null
+            val isDinnerBooked = dinnerEvent != null
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                // Location name
+                Text(
+                    text = banquetLocation,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    textAlign = TextAlign.Center
+                )
+
+                // Display lunch and dinner slots
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onEventClick(event) }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp)
                 ) {
-                    Column {
+                    // Lunch Slot
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (!isLunchBooked) {
+                                    // Handle creating a new lunch booking
+                                    Log.d("I check slot", "$banquetLocation: Lunch slot is available for booking.")
+                                    onEventClick(null) // No event means it's available for booking
+                                } else {
+                                    // Handle existing booking if necessary
+                                    Log.d("I check slot", "$banquetLocation: Lunch is already booked.")
+                                    lunchEvent?.let { onEventClick(it) } // Pass the booked event
+                                }
+                            }
+                            .padding(vertical = 4.dp)
+                    ) {
                         Text(
-                            text = event.banquetLocation,
+                            text = "Lunch",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = event.functionType,
-                            style = MaterialTheme.typography.bodySmall
+                            text = if (isLunchBooked) "Booked" else "Available",
+                            color = if (isLunchBooked) Color.Red else Color.Green
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Dinner Slot
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (!isDinnerBooked) {
+                                    // Handle creating a new dinner booking
+                                    Log.d("I check slot", "$banquetLocation: Dinner slot is available for booking.")
+                                    onEventClick(null) // No event means it's available for booking
+                                } else {
+                                    // Handle existing booking if necessary
+                                    Log.d("I check slot", "$banquetLocation: Dinner is already booked.")
+                                    dinnerEvent?.let { onEventClick(it) } // Pass the booked event
+                                }
+                            }
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Dinner",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = if (isDinnerBooked) "Booked" else "Available",
+                            color = if (isDinnerBooked) Color.Red else Color.Green
                         )
                     }
                 }
             }
         }
-    } else {
-        Text(
-            text = "No events found",
-            modifier = Modifier.padding(16.dp)
-        )
     }
 }
-
 
 private fun getDaysInMonth(month: Int, year: Int): Int {
     val calendar = Calendar.getInstance().apply {

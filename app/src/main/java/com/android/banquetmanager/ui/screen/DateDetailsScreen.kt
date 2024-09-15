@@ -58,6 +58,7 @@ fun EventDetailsCard(event: Event) {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
+            EventDetailRow(label = "Event ID", value = event.eventId)
             EventDetailRow(label = "Banquet Location", value = event.banquetLocation)
             EventDetailRow(label = "Function Type", value = event.functionType)
             EventDetailRow(label = "Food Type", value = event.foodType)
