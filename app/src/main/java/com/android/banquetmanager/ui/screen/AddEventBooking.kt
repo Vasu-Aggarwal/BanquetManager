@@ -1,6 +1,7 @@
 package com.android.banquetmanager.ui.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,6 +47,8 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
     var dateBooked by remember { mutableStateOf("") }
     var lunch by remember { mutableStateOf(false) }
     var dinner by remember { mutableStateOf(false) }
+    // State for dynamic payment details
+    var paymentDetails by remember { mutableStateOf(listOf<PaymentDetail>()) }
 
     val context = LocalContext.current
     // Add vertical scroll
@@ -166,6 +169,28 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         Text(text = "Dinner Booking?")
         Switch(checked = dinner, onCheckedChange = { dinner = it }, modifier = Modifier.padding(top = 8.dp))
 
+        Text(
+            text = "Add Payment Details",
+            modifier = Modifier
+                .clickable {
+                    // Add new empty payment detail
+                    paymentDetails = paymentDetails + PaymentDetail()
+                }
+                .padding(vertical = 8.dp)
+        )
+
+        // Display all payment details forms
+        paymentDetails.forEachIndexed { index, paymentDetail ->
+            PaymentDetailsForm(
+                paymentDetail = paymentDetail,
+                onUpdate = { updatedDetail ->
+                    paymentDetails = paymentDetails.toMutableList().apply {
+                        this[index] = updatedDetail
+                    }
+                }
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Button to submit the form
@@ -200,3 +225,30 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         }
     }
 }
+
+@Composable
+fun PaymentDetailsForm(
+    paymentDetail: PaymentDetail,
+    onUpdate: (PaymentDetail) -> Unit
+) {
+    Column {
+        TextField(
+            value = paymentDetail.paymentType,
+            onValueChange = { onUpdate(paymentDetail.copy(paymentType = it)) },
+            label = { Text("Payment Type") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        TextField(
+            value = paymentDetail.amount,
+            onValueChange = { onUpdate(paymentDetail.copy(amount = it)) },
+            label = { Text("Amount") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+data class PaymentDetail(
+    val paymentType: String = "",
+    val amount: String = ""
+)
