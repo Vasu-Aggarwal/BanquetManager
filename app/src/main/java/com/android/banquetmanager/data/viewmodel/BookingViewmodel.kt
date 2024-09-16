@@ -17,4 +17,8 @@ class BookingViewmodel @Inject constructor(
     suspend fun getBookingByEventId(eventId: String): Event {
         return bookingRepository.getBookingByEventId(eventId)
     }
+
+    suspend fun addBooking(event: Event) {
+        return bookingRepository.addBooking(event)
+    }
 }

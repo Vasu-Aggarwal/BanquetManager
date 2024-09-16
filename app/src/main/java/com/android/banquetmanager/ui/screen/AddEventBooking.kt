@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmodel = hiltViewModel()) {
@@ -49,7 +51,11 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
     // Add vertical scroll
     val scrollState = rememberScrollState()
 
-    Column(modifier = Modifier.padding(16.dp).verticalScroll(scrollState)) {
+    val scope = rememberCoroutineScope()
+
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .verticalScroll(scrollState)) {
         Text("Add Event", style = MaterialTheme.typography.headlineMedium)
 
         // Text Fields and Switches for Event details
@@ -166,26 +172,28 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         Button(onClick = {
             Toast.makeText(context, "Adding the booking", Toast.LENGTH_SHORT).show()
             // Pass the user input to the ViewModel to add the event booking
-//            bookingViewmodel.addBooking(
-//                Event(
-//                    banquetLocation = banquetLocation,
-//                    cocktail = cocktail,
-//                    cocktailAmount = cocktailAmount.toDoubleOrNull() ?: 0.0,
-//                    dj = dj,
-//                    djAmount = djAmount.toDoubleOrNull() ?: 0.0,
-//                    extraPlate = extraPlate.toLongOrNull() ?: 0,
-//                    flower = flower,
-//                    flowerAmount = flowerAmount.toDoubleOrNull() ?: 0.0,
-//                    foodType = foodType,
-//                    functionType = functionType,
-//                    menu = menu,
-//                    packageAmount = packageAmount.toDoubleOrNull() ?: 0.0,
-//                    pax = pax.toLongOrNull() ?: 0,
-//                    dateBooked = dateBooked,
-//                    lunch = lunch,
-//                    dinner = dinner
-//                )
-//            )
+            scope.launch {
+                bookingViewmodel.addBooking(
+                    Event(
+                        banquetLocation = banquetLocation,
+                        cocktail = cocktail,
+                        cocktailAmount = cocktailAmount.toDoubleOrNull() ?: 0.0,
+                        dj = dj,
+                        djAmount = djAmount.toDoubleOrNull() ?: 0.0,
+                        extraPlate = extraPlate.toLongOrNull() ?: 0,
+                        flower = flower,
+                        flowerAmount = flowerAmount.toDoubleOrNull() ?: 0.0,
+                        foodType = foodType,
+                        functionType = functionType,
+                        menu = menu,
+                        packageAmount = packageAmount.toDoubleOrNull() ?: 0.0,
+                        pax = pax.toLongOrNull() ?: 0,
+                        dateBooked = dateBooked,
+                        lunch = lunch,
+                        dinner = dinner
+                    )
+                )
+            }
 //            onEventAdded() // Callback when the event is added
         }) {
             Text("Add Event")

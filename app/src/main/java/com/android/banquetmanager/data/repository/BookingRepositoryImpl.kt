@@ -33,12 +33,24 @@ class BookingRepositoryImpl @Inject constructor(private val firebaseFirestore: F
 
     override suspend fun addBooking(event: Event) {
         try {
-            firebaseFirestore.collection("event")
+            val documentReference = firebaseFirestore.collection("event")
                 .add(event)
                 .await()
-        } catch (e: Exception){
 
+            val documentId = documentReference.id  // Get the document ID
+
+            // Update the document with the document ID as a field
+            firebaseFirestore.collection("event")
+                .document(documentId)
+                .update("eventId", documentId)
+                .await()
+
+            println("Document added with ID: $documentId and updated with the same ID")
+
+        } catch (e: Exception) {
+            e.printStackTrace()  // Handle the exception appropriately
         }
+
     }
 
     override suspend fun getBookingByEventId(eventId: String): Event {
