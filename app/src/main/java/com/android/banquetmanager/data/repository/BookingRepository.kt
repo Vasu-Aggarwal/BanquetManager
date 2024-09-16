@@ -1,6 +1,7 @@
 package com.android.banquetmanager.data.repository
 
 import com.android.banquetmanager.data.model.Event
+import com.android.banquetmanager.data.model.Payment
 import com.google.firebase.Timestamp
 
 interface BookingRepository {

@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.banquetmanager.data.model.Event
+import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import kotlinx.coroutines.launch
 
@@ -48,7 +49,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
     var lunch by remember { mutableStateOf(false) }
     var dinner by remember { mutableStateOf(false) }
     // State for dynamic payment details
-    var paymentDetails by remember { mutableStateOf(listOf<PaymentDetail>()) }
+    var paymentDetails by remember { mutableStateOf(listOf<Payment>()) }
 
     val context = LocalContext.current
     // Add vertical scroll
@@ -174,7 +175,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
             modifier = Modifier
                 .clickable {
                     // Add new empty payment detail
-                    paymentDetails = paymentDetails + PaymentDetail()
+                    paymentDetails = paymentDetails + Payment()
                 }
                 .padding(vertical = 8.dp)
         )
@@ -228,27 +229,26 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
 
 @Composable
 fun PaymentDetailsForm(
-    paymentDetail: PaymentDetail,
-    onUpdate: (PaymentDetail) -> Unit
+    paymentDetail: Payment,
+    onUpdate: (Payment) -> Unit
 ) {
     Column {
         TextField(
-            value = paymentDetail.paymentType,
-            onValueChange = { onUpdate(paymentDetail.copy(paymentType = it)) },
+            value = paymentDetail.paymentMode,
+            onValueChange = { onUpdate(paymentDetail.copy(paymentMode = it)) },
             label = { Text("Payment Type") },
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
-            value = paymentDetail.amount,
-            onValueChange = { onUpdate(paymentDetail.copy(amount = it)) },
+            value = paymentDetail.amount.toString(),
+            onValueChange = {
+                it.toDoubleOrNull()?.let { newAmount ->
+                    onUpdate(paymentDetail.copy(amount = newAmount))
+                }
+            },
             label = { Text("Amount") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
-data class PaymentDetail(
-    val paymentType: String = "",
-    val amount: String = ""
-)
