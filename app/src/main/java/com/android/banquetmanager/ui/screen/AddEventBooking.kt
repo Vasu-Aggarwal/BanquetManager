@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -27,12 +30,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
+import com.android.banquetmanager.utils.BanquetLocations
 import kotlinx.coroutines.launch
 
 @Composable
 fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmodel = hiltViewModel()) {
     // State for form inputs
-    var banquetLocation by remember { mutableStateOf("") }
+    var banquetLocation by remember { mutableStateOf(BanquetLocations.SK_EASTEND) }
     var cocktail by remember { mutableStateOf(false) }
     var cocktailAmount by remember { mutableStateOf("") }
     var dj by remember { mutableStateOf(false) }
@@ -62,13 +66,18 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         .verticalScroll(scrollState)) {
         Text("Add Event", style = MaterialTheme.typography.headlineMedium)
 
-        // Text Fields and Switches for Event details
-        TextField(
-            value = banquetLocation,
-            onValueChange = { banquetLocation = it },
-            label = { Text("Banquet Location") },
-            modifier = Modifier.fillMaxWidth()
+        // Banquet Location Dropdown
+        BanquetLocationDropdown(
+            selectedLocation = banquetLocation,
+            onLocationSelected = { banquetLocation = it }
         )
+        // Text Fields and Switches for Event details
+//        TextField(
+//            value = banquetLocation,
+//            onValueChange = { banquetLocation = it },
+//            label = { Text("Banquet Location") },
+//            modifier = Modifier.fillMaxWidth()
+//        )
 
         // Cocktail toggle and input
         Text(text = "Include Cocktail?")
@@ -201,7 +210,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
             scope.launch {
                 bookingViewmodel.addBooking(
                     Event(
-                        banquetLocation = banquetLocation,
+                        banquetLocation = banquetLocation.name,
                         cocktail = cocktail,
                         cocktailAmount = cocktailAmount.toDoubleOrNull() ?: 0.0,
                         dj = dj,
@@ -217,7 +226,8 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                         dateBooked = dateBooked,
                         lunch = lunch,
                         dinner = dinner
-                    )
+                    ),
+                    paymentDetails
                 )
             }
 //            onEventAdded() // Callback when the event is added
@@ -252,3 +262,51 @@ fun PaymentDetailsForm(
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BanquetLocationDropdown(
+    selectedLocation: BanquetLocations,
+    onLocationSelected: (BanquetLocations) -> Unit
+) {
+    // State to manage the expanded dropdown
+    var expanded by remember { mutableStateOf(false) }
+
+    // UI for the dropdown
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }  // Toggle expanded state on click
+    ) {
+        // The TextField that displays the selected location and toggles the dropdown
+        TextField(
+            value = selectedLocation.name,  // Show selected location name
+            onValueChange = {},  // No manual input, so no changes here
+            readOnly = true,  // Read-only to prevent keyboard input
+            label = { Text("Select Banquet Location") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor() // Necessary to anchor the dropdown to the TextField
+        )
+
+        // The dropdown menu
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }  // Close when clicked outside
+        ) {
+            // Loop through all enum values and display them in the dropdown
+            BanquetLocations.values().forEach { location ->
+                Text(
+                    text = location.name,  // Display the enum name
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onLocationSelected(location)  // Update the selected location
+                            expanded = false  // Close the dropdown after selection
+                        }
+                        .padding(16.dp)
+                )
+            }
+        }
+    }
+}
+

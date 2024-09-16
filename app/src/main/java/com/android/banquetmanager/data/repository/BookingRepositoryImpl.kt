@@ -2,6 +2,7 @@ package com.android.banquetmanager.data.repository
 
 import android.util.Log
 import com.android.banquetmanager.data.model.Event
+import com.android.banquetmanager.data.model.Payment
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
@@ -31,26 +32,42 @@ class BookingRepositoryImpl @Inject constructor(private val firebaseFirestore: F
         }
     }
 
-    override suspend fun addBooking(event: Event) {
+    override suspend fun addBooking(event: Event, payments: List<Payment>) {
         try {
+            // Step 1: Add the payments to the 'payment' collection and collect document IDs
+            val paymentIds = mutableListOf<String>()
+            for (payment in payments) {
+                val paymentDocumentReference = firebaseFirestore.collection("payment")
+                    .add(payment)
+                    .await()
+
+                val paymentDocumentId = paymentDocumentReference.id
+                paymentIds.add(paymentDocumentId) // Collect the payment document IDs
+            }
+
+            // Step 2: Add the event to the 'event' collection
             val documentReference = firebaseFirestore.collection("event")
                 .add(event)
                 .await()
 
             val documentId = documentReference.id  // Get the document ID
 
-            // Update the document with the document ID as a field
+            // Step 3: Update the event with the document ID and payment IDs
             firebaseFirestore.collection("event")
                 .document(documentId)
-                .update("eventId", documentId)
+                .update(
+                    mapOf(
+                        "eventId" to documentId,
+                        "paymentDetail" to paymentIds // Add the payment document IDs as an array
+                    )
+                )
                 .await()
 
-            println("Document added with ID: $documentId and updated with the same ID")
+            println("Document added with ID: $documentId and updated with payment details")
 
         } catch (e: Exception) {
             e.printStackTrace()  // Handle the exception appropriately
         }
-
     }
 
     override suspend fun getBookingByEventId(eventId: String): Event {

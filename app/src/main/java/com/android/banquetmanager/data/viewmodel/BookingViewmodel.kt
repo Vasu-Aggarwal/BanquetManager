@@ -2,6 +2,7 @@ package com.android.banquetmanager.data.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.android.banquetmanager.data.model.Event
+import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.repository.BookingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,7 +19,7 @@ class BookingViewmodel @Inject constructor(
         return bookingRepository.getBookingByEventId(eventId)
     }
 
-    suspend fun addBooking(event: Event) {
-        return bookingRepository.addBooking(event)
+    suspend fun addBooking(event: Event, payments: List<Payment>) {
+        return bookingRepository.addBooking(event, payments)
     }
 }
