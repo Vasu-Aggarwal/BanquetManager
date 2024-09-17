@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,12 +30,15 @@ import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.utils.BanquetLocations
+import com.android.banquetmanager.utils.FunctionType
 import kotlinx.coroutines.launch
+import kotlin.enums.EnumEntries
 
 @Composable
 fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmodel = hiltViewModel()) {
     // State for form inputs
     var banquetLocation by remember { mutableStateOf(BanquetLocations.SK_EASTEND) }
+    var functionTypeEnum by remember { mutableStateOf(FunctionType.WEDDING) }
     var cocktail by remember { mutableStateOf(false) }
     var cocktailAmount by remember { mutableStateOf("") }
     var dj by remember { mutableStateOf(false) }
@@ -66,18 +68,12 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         .verticalScroll(scrollState)) {
         Text("Add Event", style = MaterialTheme.typography.headlineMedium)
 
-        // Banquet Location Dropdown
-        BanquetLocationDropdown(
-            selectedLocation = banquetLocation,
-            onLocationSelected = { banquetLocation = it }
-        )
-        // Text Fields and Switches for Event details
-//        TextField(
-//            value = banquetLocation,
-//            onValueChange = { banquetLocation = it },
-//            label = { Text("Banquet Location") },
-//            modifier = Modifier.fillMaxWidth()
-//        )
+        //Dropdown for the banquet locations
+        DropdownMenu(
+            list = BanquetLocations.entries,
+            selectedItem = banquetLocation,
+            onItemSelected = { banquetLocation = it },
+            label = "Banquet Location")
 
         // Cocktail toggle and input
         Text(text = "Include Cocktail?")
@@ -124,6 +120,12 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         }
 
         // Food Type input
+        DropdownMenu(
+            list = FunctionType.entries,
+            selectedItem = functionTypeEnum,
+            onItemSelected = { functionTypeEnum = it },
+            label = "Function type"
+        )
         TextField(
             value = foodType,
             onValueChange = { foodType = it },
@@ -266,7 +268,8 @@ fun PaymentDetailsForm(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BanquetLocationDropdown(
-    selectedLocation: BanquetLocations,
+    list: EnumEntries<BanquetLocations>,
+    selectedItem: BanquetLocations,
     onLocationSelected: (BanquetLocations) -> Unit
 ) {
     // State to manage the expanded dropdown
@@ -279,7 +282,7 @@ fun BanquetLocationDropdown(
     ) {
         // The TextField that displays the selected location and toggles the dropdown
         TextField(
-            value = selectedLocation.name,  // Show selected location name
+            value = selectedItem.name,  // Show selected location name
             onValueChange = {},  // No manual input, so no changes here
             readOnly = true,  // Read-only to prevent keyboard input
             label = { Text("Select Banquet Location") },
@@ -309,4 +312,54 @@ fun BanquetLocationDropdown(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T : Enum<T>> DropdownMenu(
+    list: EnumEntries<T>,  // List of enum values
+    selectedItem: T,  // Currently selected enum item
+    onItemSelected: (T) -> Unit,  // Callback when an item is selected
+    label: String  // Label for the dropdown field
+) {
+    // State to manage the expanded dropdown
+    var expanded by remember { mutableStateOf(false) }
+
+    // UI for the dropdown
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }  // Toggle expanded state on click
+    ) {
+        // The TextField that displays the selected enum and toggles the dropdown
+        TextField(
+            value = selectedItem.name,  // Show selected enum name
+            onValueChange = {},  // No manual input, so no changes here
+            readOnly = true,  // Read-only to prevent keyboard input
+            label = { Text(label) },  // Display the passed label
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor() // Necessary to anchor the dropdown to the TextField
+        )
+
+        // The dropdown menu
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }  // Close when clicked outside
+        ) {
+            // Loop through all enum values and display them in the dropdown
+            list.forEach { item ->
+                Text(
+                    text = item.name,  // Display the enum name
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onItemSelected(item)  // Update the selected item
+                            expanded = false  // Close the dropdown after selection
+                        }
+                        .padding(16.dp)
+                )
+            }
+        }
+    }
+}
+
 
