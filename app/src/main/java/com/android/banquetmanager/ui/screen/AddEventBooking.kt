@@ -73,7 +73,9 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
             list = BanquetLocations.entries,
             selectedItem = banquetLocation,
             onItemSelected = { banquetLocation = it },
-            label = "Banquet Location")
+            label = "Banquet Location",
+            displayName = { it.displayName }
+            )
 
         // Cocktail toggle and input
         Text(text = "Include Cocktail?")
@@ -124,7 +126,8 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
             list = FunctionType.entries,
             selectedItem = functionTypeEnum,
             onItemSelected = { functionTypeEnum = it },
-            label = "Function type"
+            label = "Function type",
+            displayName = { it.displayName }
         )
         TextField(
             value = foodType,
@@ -267,59 +270,12 @@ fun PaymentDetailsForm(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BanquetLocationDropdown(
-    list: EnumEntries<BanquetLocations>,
-    selectedItem: BanquetLocations,
-    onLocationSelected: (BanquetLocations) -> Unit
-) {
-    // State to manage the expanded dropdown
-    var expanded by remember { mutableStateOf(false) }
-
-    // UI for the dropdown
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }  // Toggle expanded state on click
-    ) {
-        // The TextField that displays the selected location and toggles the dropdown
-        TextField(
-            value = selectedItem.name,  // Show selected location name
-            onValueChange = {},  // No manual input, so no changes here
-            readOnly = true,  // Read-only to prevent keyboard input
-            label = { Text("Select Banquet Location") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor() // Necessary to anchor the dropdown to the TextField
-        )
-
-        // The dropdown menu
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }  // Close when clicked outside
-        ) {
-            // Loop through all enum values and display them in the dropdown
-            BanquetLocations.values().forEach { location ->
-                Text(
-                    text = location.name,  // Display the enum name
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onLocationSelected(location)  // Update the selected location
-                            expanded = false  // Close the dropdown after selection
-                        }
-                        .padding(16.dp)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun <T : Enum<T>> DropdownMenu(
     list: EnumEntries<T>,  // List of enum values
     selectedItem: T,  // Currently selected enum item
     onItemSelected: (T) -> Unit,  // Callback when an item is selected
-    label: String  // Label for the dropdown field
+    label: String,  // Label for the dropdown field
+    displayName: (T) -> String
 ) {
     // State to manage the expanded dropdown
     var expanded by remember { mutableStateOf(false) }
@@ -331,7 +287,7 @@ fun <T : Enum<T>> DropdownMenu(
     ) {
         // The TextField that displays the selected enum and toggles the dropdown
         TextField(
-            value = selectedItem.name,  // Show selected enum name
+            value = displayName(selectedItem),  // Show selected enum name
             onValueChange = {},  // No manual input, so no changes here
             readOnly = true,  // Read-only to prevent keyboard input
             label = { Text(label) },  // Display the passed label
@@ -348,7 +304,7 @@ fun <T : Enum<T>> DropdownMenu(
             // Loop through all enum values and display them in the dropdown
             list.forEach { item ->
                 Text(
-                    text = item.name,  // Display the enum name
+                    text = displayName(item),  // Display the enum name
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {

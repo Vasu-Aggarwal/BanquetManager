@@ -1,6 +1,6 @@
 package com.android.banquetmanager.utils
 
-enum class FunctionType {
-    WEDDING,
-    RING_CEREMONY
+enum class FunctionType(val displayName: String) {
+    WEDDING("Wedding"),
+    RING_CEREMONY("Ring Ceremony")
 }
