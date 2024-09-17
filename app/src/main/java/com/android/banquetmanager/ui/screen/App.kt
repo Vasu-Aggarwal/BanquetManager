@@ -1,5 +1,6 @@
 package com.android.banquetmanager.ui.screen
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -46,6 +47,9 @@ sealed class Screen(val route: String){
     }
     data object CalendarScreen: Screen("calendarScreen")
     data object AddEventBooking: Screen("addEventBooking/{date}/{slot}"){
-        fun createRoute(date: String, slot: String) = "addEventBooking/$date/$slot"
+        fun createRoute(date: String, slot: String): String {
+            val encodedDate = Uri.encode(date)
+            return "addEventBooking/$encodedDate/$slot"
+        }
     }
 }

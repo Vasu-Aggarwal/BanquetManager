@@ -258,7 +258,7 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isLunchBooked) {
                                     // Handle creating a new lunch booking
-                                    navController.navigate(Screen.AddEventBooking.createRoute("1", "1"))// No event means it's available for booking
+                                    navController.navigate(Screen.AddEventBooking.createRoute(date, "1"))// No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
                                     lunchEvent?.let { onEventClick(it) } // Pass the booked event
@@ -285,7 +285,7 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isDinnerBooked) {
                                     // Handle creating a new dinner booking
-                                    navController.navigate(Screen.AddEventBooking.createRoute("1", "1"))// No event means it's available for booking
+                                    navController.navigate(Screen.AddEventBooking.createRoute(date, "1"))// No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
                                     dinnerEvent?.let { onEventClick(it) } // Pass the booked event

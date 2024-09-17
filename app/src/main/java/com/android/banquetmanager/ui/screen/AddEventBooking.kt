@@ -1,44 +1,68 @@
 package com.android.banquetmanager.ui.screen
 
+import android.app.DatePickerDialog
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.utils.BanquetLocations
+import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.FunctionType
+import com.android.banquetmanager.utils.Menu
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import kotlin.enums.EnumEntries
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmodel = hiltViewModel()) {
     // State for form inputs
     var banquetLocation by remember { mutableStateOf(BanquetLocations.SK_EASTEND) }
-    var functionTypeEnum by remember { mutableStateOf(FunctionType.WEDDING) }
+    var functionType by remember { mutableStateOf(FunctionType.WEDDING) }
+    var foodType by remember { mutableStateOf(FoodType.VEG) }
+    var menu by remember { mutableStateOf(Menu.Gold) }
     var cocktail by remember { mutableStateOf(false) }
     var cocktailAmount by remember { mutableStateOf("") }
     var dj by remember { mutableStateOf(false) }
@@ -46,12 +70,17 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
     var extraPlate by remember { mutableStateOf("") }
     var flower by remember { mutableStateOf(false) }
     var flowerAmount by remember { mutableStateOf("") }
-    var foodType by remember { mutableStateOf("") }
-    var functionType by remember { mutableStateOf("") }
-    var menu by remember { mutableStateOf("") }
     var packageAmount by remember { mutableStateOf("") }
     var pax by remember { mutableStateOf("") }
-    var dateBooked by remember { mutableStateOf("") }
+
+    // Updated state for date picker
+    val datePickerState = rememberDatePickerState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    var dateBooked by remember { mutableStateOf(date) }
+    val selectedDate = datePickerState.selectedDateMillis?.let {
+        convertMillisToDate(it)
+    } ?: ""
+
     var lunch by remember { mutableStateOf(false) }
     var dinner by remember { mutableStateOf(false) }
     // State for dynamic payment details
@@ -121,35 +150,31 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
             )
         }
 
-        // Food Type input
+        // Function Type input
         DropdownMenu(
             list = FunctionType.entries,
-            selectedItem = functionTypeEnum,
-            onItemSelected = { functionTypeEnum = it },
+            selectedItem = functionType,
+            onItemSelected = { functionType = it },
             label = "Function type",
             displayName = { it.displayName }
         )
-        TextField(
-            value = foodType,
-            onValueChange = { foodType = it },
-            label = { Text("Food Type") },
-            modifier = Modifier.fillMaxWidth()
-        )
 
-        // Function Type input
-        TextField(
-            value = functionType,
-            onValueChange = { functionType = it },
-            label = { Text("Function Type") },
-            modifier = Modifier.fillMaxWidth()
+        // Food Type input
+        DropdownMenu(
+            list = FoodType.entries,
+            selectedItem = foodType,
+            onItemSelected = { foodType = it },
+            label = "Food type",
+            displayName = { it.displayName }
         )
 
         // Menu input
-        TextField(
-            value = menu,
-            onValueChange = { menu = it },
-            label = { Text("Menu") },
-            modifier = Modifier.fillMaxWidth()
+        DropdownMenu(
+            list = Menu.entries,
+            selectedItem = menu,
+            onItemSelected = { menu = it },
+            label = "Menu",
+            displayName = { it.displayName }
         )
 
         // Package Amount input
@@ -168,13 +193,41 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Date Booked input
-        TextField(
-            value = dateBooked,
-            onValueChange = { dateBooked = it },
-            label = { Text("Date Booked") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        // Date picker for "Date Booked"
+        if(showDatePicker){
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(onClick = {
+                        dateBooked = selectedDate
+                        showDatePicker = false
+                    }) {
+                        Text("OK")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("Cancel")
+                    }
+                }
+            ) {
+                DatePicker(
+                    state = datePickerState
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    showDatePicker = true
+                }
+                .border(1.dp, MaterialTheme.colorScheme.outline)
+                .padding(16.dp)
+        ) {
+            Text(text = dateBooked, style = MaterialTheme.typography.bodyLarge)
+        }
 
         // Lunch toggle
         Text(text = "Lunch Booking?")
@@ -223,9 +276,9 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                         extraPlate = extraPlate.toLongOrNull() ?: 0,
                         flower = flower,
                         flowerAmount = flowerAmount.toDoubleOrNull() ?: 0.0,
-                        foodType = foodType,
-                        functionType = functionType,
-                        menu = menu,
+                        foodType = foodType.name,
+                        functionType = functionType.name,
+                        menu = menu.name,
                         packageAmount = packageAmount.toDoubleOrNull() ?: 0.0,
                         pax = pax.toLongOrNull() ?: 0,
                         dateBooked = dateBooked,
@@ -316,6 +369,11 @@ fun <T : Enum<T>> DropdownMenu(
             }
         }
     }
+}
+
+fun convertMillisToDate(millis: Long): String {
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
 }
 
 
