@@ -235,29 +235,29 @@ fun MonthView(
     Column(
         modifier = Modifier
             .padding(top = 60.dp)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures { change, dragAmount ->
-                    Toast
-                        .makeText(context, dragAmount.dp.value.toString(), Toast.LENGTH_SHORT)
-                        .show()
-                    if (change.positionChange().x < 0.1 && dragAmount < 0.1) {
-                        // Swipe left (next month)
-                        val newMonth = if (currentMonth == 12) 1 else currentMonth + 1
-                        val newYear = if (currentMonth == 12) currentYear + 1 else currentYear
-                        onMonthChanged(newMonth, newYear)
-                        Log.d(
-                            "trying to swipe ",
-                            "MonthView: Current month: $currentMonth, New month: $newMonth"
-                        )
-                    } else if (change.positionChange().x > 0.1 && dragAmount > 0.1) {
-                        // Swipe right (previous month)
-                        Log.d("trying to swipe ", "MonthView: previous")
-                        val newMonth = if (currentMonth == 1) 12 else currentMonth - 1
-                        val newYear = if (currentMonth == 1) currentYear - 1 else currentYear
-                        onMonthChanged(newMonth, newYear)
-                    }
-                }
-            }
+//            .pointerInput(Unit) {
+//                detectHorizontalDragGestures { change, dragAmount ->
+//                    Toast
+//                        .makeText(context, dragAmount.dp.value.toString(), Toast.LENGTH_SHORT)
+//                        .show()
+//                    if (change.positionChange().x < 0.1 && dragAmount < 0.1) {
+//                        // Swipe left (next month)
+//                        val newMonth = if (currentMonth == 12) 1 else currentMonth + 1
+//                        val newYear = if (currentMonth == 12) currentYear + 1 else currentYear
+//                        onMonthChanged(newMonth, newYear)
+//                        Log.d(
+//                            "trying to swipe ",
+//                            "MonthView: Current month: $currentMonth, New month: $newMonth"
+//                        )
+//                    } else if (change.positionChange().x > 0.1 && dragAmount > 0.1) {
+//                        // Swipe right (previous month)
+//                        Log.d("trying to swipe ", "MonthView: previous")
+//                        val newMonth = if (currentMonth == 1) 12 else currentMonth - 1
+//                        val newYear = if (currentMonth == 1) currentYear - 1 else currentYear
+//                        onMonthChanged(newMonth, newYear)
+//                    }
+//                }
+//            }
     ) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = {
