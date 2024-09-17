@@ -4,12 +4,16 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,6 +24,7 @@ import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.ui.screen.Screen
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +35,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
     var showBottomSheet by remember { mutableStateOf(false) }
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     val scope = rememberCoroutineScope()
-    val banquetLocations: List<String> = listOf("Test", "Test2")
+    val banquetLocations: List<String> = listOf("SK_EASTEND", "RAJWADA")
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
@@ -92,6 +97,118 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
     }
 }
 
+//@Composable
+//fun MonthView(
+//    currentYear: Int,
+//    currentMonth: Int,
+//    onDateSelected: (Int, Int, Int) -> Unit,
+//    onMonthChanged: (Int, Int) -> Unit
+//) {
+//    var selectedDay by remember { mutableStateOf<Int?>(null) }
+//    val daysInMonth = remember { getDaysInMonth(currentMonth, currentYear) }
+//    val calendar = Calendar.getInstance().apply {
+//        set(currentYear, currentMonth - 1, 1)
+//    }
+//    val firstDayOfMonth = calendar.get(Calendar.DAY_OF_WEEK)
+//    val today = Calendar.getInstance()
+//    val todayDay = today.get(Calendar.DAY_OF_MONTH)
+//    val todayMonth = today.get(Calendar.MONTH) + 1
+//    val todayYear = today.get(Calendar.YEAR)
+//    val monthNames = arrayOf(
+//        "January", "February", "March", "April", "May", "June",
+//        "July", "August", "September", "October", "November", "December"
+//    )
+//
+//    Column(
+//        modifier = Modifier.padding(top = 60.dp)
+//    ) {
+//        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+//            Button(onClick = {
+//                val newMonth = if (currentMonth == 1) 12 else currentMonth - 1
+//                val newYear = if (currentMonth == 1) currentYear - 1 else currentYear
+//                onMonthChanged(newMonth, newYear)
+//            }) {
+//                Text(text = "<")
+//            }
+//            Spacer(modifier = Modifier.width(16.dp))
+//            Text(
+//                text = "${monthNames[currentMonth - 1]} $currentYear",
+//                modifier = Modifier.weight(1f),
+//                textAlign = TextAlign.Center
+//            )
+//            Spacer(modifier = Modifier.width(16.dp))
+//            Button(onClick = {
+//                val newMonth = if (currentMonth == 12) 1 else currentMonth + 1
+//                val newYear = if (currentMonth == 12) currentYear + 1 else currentYear
+//                onMonthChanged(newMonth, newYear)
+//            }) {
+//                Text(text = ">")
+//            }
+//        }
+//
+//        Row {
+//            for (dayOfWeek in arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")) {
+//                Text(
+//                    text = dayOfWeek,
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .padding(8.dp),
+//                    textAlign = TextAlign.Center
+//                )
+//            }
+//        }
+//
+//        var day = 1
+//        for (row in 0 until 6) {
+//            Row {
+//                for (col in 0 until 7) {
+//                    val isEmpty = row == 0 && col < (firstDayOfMonth - 1) || day > daysInMonth
+//                    if (isEmpty) {
+//                        Text(
+//                            text = "",
+//                            modifier = Modifier
+//                                .weight(1f)
+//                                .padding(8.dp),
+//                            textAlign = TextAlign.Center
+//                        )
+//                    } else {
+//                        val dayToDisplay = day
+//                        val isToday =
+//                            dayToDisplay == todayDay && currentMonth == todayMonth && currentYear == todayYear
+//
+//                        Column(
+//                            modifier = Modifier
+//                                .weight(1f)
+//                                .padding(8.dp)
+//                                .height(50.dp)
+//                                .clickable {
+//                                    selectedDay = dayToDisplay
+//                                    onDateSelected(dayToDisplay, currentMonth, currentYear)
+//                                },
+//                            horizontalAlignment = Alignment.CenterHorizontally
+//                        ) {
+//                            Text(
+//                                text = dayToDisplay.toString(),
+//                                textAlign = TextAlign.Center
+//                            )
+//
+//                            if (isToday) {
+//                                Text(
+//                                    text = "•",
+//                                    textAlign = TextAlign.Center,
+//                                    color = Color.Red,
+//                                    modifier = Modifier.padding(top = 4.dp)
+//                                )
+//                            }
+//                        }
+//                        day++
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
 @Composable
 fun MonthView(
     currentYear: Int,
@@ -113,9 +230,34 @@ fun MonthView(
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     )
+    val context = LocalContext.current
 
     Column(
-        modifier = Modifier.padding(top = 60.dp)
+        modifier = Modifier
+            .padding(top = 60.dp)
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures { change, dragAmount ->
+                    Toast
+                        .makeText(context, dragAmount.dp.value.toString(), Toast.LENGTH_SHORT)
+                        .show()
+                    if (change.positionChange().x < 0.1 && dragAmount < 0.1) {
+                        // Swipe left (next month)
+                        val newMonth = if (currentMonth == 12) 1 else currentMonth + 1
+                        val newYear = if (currentMonth == 12) currentYear + 1 else currentYear
+                        onMonthChanged(newMonth, newYear)
+                        Log.d(
+                            "trying to swipe ",
+                            "MonthView: Current month: $currentMonth, New month: $newMonth"
+                        )
+                    } else if (change.positionChange().x > 0.1 && dragAmount > 0.1) {
+                        // Swipe right (previous month)
+                        Log.d("trying to swipe ", "MonthView: previous")
+                        val newMonth = if (currentMonth == 1) 12 else currentMonth - 1
+                        val newYear = if (currentMonth == 1) currentYear - 1 else currentYear
+                        onMonthChanged(newMonth, newYear)
+                    }
+                }
+            }
     ) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = {
@@ -204,6 +346,7 @@ fun MonthView(
     }
 }
 
+
 @Composable
 fun BottomSheetContent(
     navController: NavController,
@@ -258,7 +401,12 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isLunchBooked) {
                                     // Handle creating a new lunch booking
-                                    navController.navigate(Screen.AddEventBooking.createRoute(date, "1"))// No event means it's available for booking
+                                    navController.navigate(
+                                        Screen.AddEventBooking.createRoute(
+                                            date,
+                                            "1"
+                                        )
+                                    )// No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
                                     lunchEvent?.let { onEventClick(it) } // Pass the booked event
@@ -285,7 +433,12 @@ fun BottomSheetContent(
                             .clickable {
                                 if (!isDinnerBooked) {
                                     // Handle creating a new dinner booking
-                                    navController.navigate(Screen.AddEventBooking.createRoute(date, "1"))// No event means it's available for booking
+                                    navController.navigate(
+                                        Screen.AddEventBooking.createRoute(
+                                            date,
+                                            "1"
+                                        )
+                                    )// No event means it's available for booking
                                 } else {
                                     // Handle existing booking if necessary
                                     dinnerEvent?.let { onEventClick(it) } // Pass the booked event
