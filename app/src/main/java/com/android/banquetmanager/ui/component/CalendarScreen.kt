@@ -23,6 +23,7 @@ import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.ui.screen.Screen
 import com.android.banquetmanager.utils.FoodType
+import com.android.banquetmanager.utils.SlotTime
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.abs
@@ -286,7 +287,7 @@ fun BottomSheetContent(
                                     navController.navigate(
                                         Screen.AddEventBooking.createRoute(
                                             date,
-                                            "1"
+                                            SlotTime.LUNCH.name
                                         )
                                     )// No event means it's available for booking
                                 } else {
@@ -329,7 +330,7 @@ fun BottomSheetContent(
                                     navController.navigate(
                                         Screen.AddEventBooking.createRoute(
                                             date,
-                                            "1"
+                                            SlotTime.DINNER.name
                                         )
                                     )// No event means it's available for booking
                                 } else {

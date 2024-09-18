@@ -6,22 +6,32 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerColors
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -39,6 +49,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
@@ -50,6 +64,7 @@ import com.android.banquetmanager.utils.BanquetLocations
 import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.FunctionType
 import com.android.banquetmanager.utils.Menu
+import com.android.banquetmanager.utils.SlotTime
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -83,107 +98,131 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         convertMillisToDate(it)
     } ?: ""
 
-    var lunch by remember { mutableStateOf(false) }
-    var dinner by remember { mutableStateOf(false) }
+    var lunch by remember { mutableStateOf(slot == SlotTime.LUNCH.name) }
+    var dinner by remember { mutableStateOf(slot == SlotTime.DINNER.name) }
     // State for dynamic payment details
     var paymentDetails by remember { mutableStateOf(listOf<Payment>()) }
-
     val context = LocalContext.current
     // Add vertical scroll
     val scrollState = rememberScrollState()
-
     val scope = rememberCoroutineScope()
 
     Column(modifier = Modifier
         .padding(16.dp)
-        .verticalScroll(scrollState)) {
-        Text("Add Event", style = MaterialTheme.typography.headlineMedium)
+        .verticalScroll(scrollState)
+    ) {
+        Text("Add a new Booking")
 
         //Dropdown for the banquet locations
-        DropdownMenu(
-            list = BanquetLocations.entries,
-            selectedItem = banquetLocation,
-            onItemSelected = { banquetLocation = it },
-            label = "Banquet Location",
-            displayName = { it.displayName }
+        Row {
+            Text(text = "Banquet Location: ")
+            DropdownMenu(
+                list = BanquetLocations.entries,
+                selectedItem = banquetLocation,
+                onItemSelected = { banquetLocation = it },
+                label = "",
+                displayName = { it.displayName }
             )
+        }
 
         // Cocktail toggle and input
-        Text(text = "Include Cocktail?")
-        Switch(checked = cocktail, onCheckedChange = { cocktail = it }, modifier = Modifier.padding(top = 8.dp))
-        if (cocktail) {
-            TextField(
-                value = cocktailAmount,
-                onValueChange = { cocktailAmount = it },
-                label = { Text("Cocktail Amount") },
-                modifier = Modifier.fillMaxWidth()
-            )
+        Row(
+            modifier = Modifier.padding(top = 15.dp)
+        ) {
+            Text(text = "Include Cocktail?")
+            Switch(checked = cocktail, onCheckedChange = { cocktail = it })
+            if (cocktail) {
+                TextField(
+                    value = cocktailAmount,
+                    onValueChange = { cocktailAmount = it },
+                    label = { Text("Cocktail Amount") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
 
         // DJ toggle and input
-        Text(text = "Include DJ?")
-        Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
-        if (dj) {
-            TextField(
-                value = djAmount,
-                onValueChange = { djAmount = it },
-                label = { Text("DJ Amount") },
-                modifier = Modifier.fillMaxWidth()
-            )
+        Row {
+            Text(text = "Include DJ?")
+            Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
+            if (dj) {
+                TextField(
+                    value = djAmount,
+                    onValueChange = { djAmount = it },
+                    label = { Text("DJ Amount") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
 
         // Extra Plates input
-        TextField(
-            value = extraPlate,
-            onValueChange = { extraPlate = it },
-            label = { Text("Extra Plates") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // Flower toggle and input
-        Text(text = "Include Flowers?")
-        Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
-        if (flower) {
+        Row {
+            Text(text = "Extra Plates: ")
             TextField(
-                value = flowerAmount,
-                onValueChange = { flowerAmount = it },
-                label = { Text("Flower Amount") },
+                value = extraPlate,
+                onValueChange = { extraPlate = it },
+                label = {  },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
+        // Flower toggle and input
+        Row {
+            Text(text = "Include Flowers?")
+            Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
+            if (flower) {
+                TextField(
+                    value = flowerAmount,
+                    onValueChange = { flowerAmount = it },
+                    label = { Text("Flower Amount") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
         // Function Type input
-        DropdownMenu(
-            list = FunctionType.entries,
-            selectedItem = functionType,
-            onItemSelected = { functionType = it },
-            label = "Function type",
-            displayName = { it.displayName }
-        )
+        Row {
+            Text(text = "Function Type: ")
+            DropdownMenu(
+                list = FunctionType.entries,
+                selectedItem = functionType,
+                onItemSelected = { functionType = it },
+                label = "Function type",
+                displayName = { it.displayName }
+            )
+        }
 
         // Food Type input
-        DropdownMenu(
-            list = FoodType.entries,
-            selectedItem = foodType,
-            onItemSelected = { foodType = it },
-            label = "Food type",
-            displayName = { it.displayName }
-        )
+        Row {
+            Text(text = "Food Type: ")
+            DropdownMenu(
+                list = FoodType.entries,
+                selectedItem = foodType,
+                onItemSelected = { foodType = it },
+                label = "Food type",
+                displayName = { it.displayName }
+            )
+        }
 
         // Menu input
-        DropdownMenu(
-            list = Menu.entries,
-            selectedItem = menu,
-            onItemSelected = { menu = it },
-            label = "Menu",
-            displayName = { it.displayName }
-        )
+        Row {
+            Text(text = "Menu: ")
+            DropdownMenu(
+                list = Menu.entries,
+                selectedItem = menu,
+                onItemSelected = { menu = it },
+                label = "Menu",
+                displayName = { it.displayName }
+            )
+        }
 
         // Package Amount input
         TextField(
             value = packageAmount,
             onValueChange = { packageAmount = it },
             label = { Text("Package Amount") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -192,6 +231,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
             value = pax,
             onValueChange = { pax = it },
             label = { Text("Pax") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -232,33 +272,66 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         }
 
         // Lunch toggle
-        Text(text = "Lunch Booking?")
-        Switch(checked = lunch, onCheckedChange = { lunch = it }, modifier = Modifier.padding(top = 8.dp))
+        Row{
+            Text(text = "Lunch Booking?")
+            Switch(
+                checked = lunch,
+                onCheckedChange = { lunch = it },
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
 
         // Dinner toggle
-        Text(text = "Dinner Booking?")
-        Switch(checked = dinner, onCheckedChange = { dinner = it }, modifier = Modifier.padding(top = 8.dp))
-
-        Text(
-            text = "Add Payment Details",
-            modifier = Modifier
-                .clickable {
-                    // Add new empty payment detail
-                    paymentDetails = paymentDetails + Payment()
-                }
-                .padding(vertical = 8.dp)
-        )
-
-        // Display all payment details forms
-        paymentDetails.forEachIndexed { index, paymentDetail ->
-            PaymentDetailsForm(
-                paymentDetail = paymentDetail,
-                onUpdate = { updatedDetail ->
-                    paymentDetails = paymentDetails.toMutableList().apply {
-                        this[index] = updatedDetail
-                    }
-                }
+        Row{
+            Text(text = "Dinner Booking?")
+            Switch(
+                checked = dinner,
+                onCheckedChange = { dinner = it },
+                modifier = Modifier.padding(top = 8.dp)
             )
+        }
+
+        Box(
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add payment", tint = Color.Blue)
+
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(Color.Blue)) {
+                                append("Add Payment Details")
+                            }
+                        },
+                        modifier = Modifier
+                            .clickable {
+                                // Add new empty payment detail
+                                paymentDetails = paymentDetails + Payment()
+                            }
+                            .padding(vertical = 8.dp)
+                    )
+                }
+
+                // Display all payment details forms
+                paymentDetails.forEachIndexed { index, paymentDetail ->
+                    PaymentDetailsForm(
+                        paymentDetail = paymentDetail,
+                        onUpdate = { updatedDetail ->
+                            paymentDetails = paymentDetails.toMutableList().apply {
+                                this[index] = updatedDetail
+                            }
+                        },
+                        onDelete = { updatedDetail ->
+                            paymentDetails = paymentDetails.toMutableList().apply {
+                                removeAt(index)
+                            }
+                        }
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -300,26 +373,38 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
 @Composable
 fun PaymentDetailsForm(
     paymentDetail: Payment,
-    onUpdate: (Payment) -> Unit
+    onUpdate: (Payment) -> Unit,
+    onDelete: (Payment) -> Unit
 ) {
-    Column {
-        TextField(
-            value = paymentDetail.paymentMode,
-            onValueChange = { onUpdate(paymentDetail.copy(paymentMode = it)) },
-            label = { Text("Payment Type") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        TextField(
-            value = paymentDetail.amount.toString(),
-            onValueChange = {
-                it.toDoubleOrNull()?.let { newAmount ->
-                    onUpdate(paymentDetail.copy(amount = newAmount))
-                }
-            },
-            label = { Text("Amount") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+    Card(
+        modifier = Modifier.padding(5.dp)
+    ){
+        Column {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete payment details",
+                tint = Color.Red,
+                modifier = Modifier.clickable { onDelete(paymentDetail) }
+            )
+            TextField(
+                value = paymentDetail.paymentMode,
+                onValueChange = { onUpdate(paymentDetail.copy(paymentMode = it)) },
+                label = { Text("Payment Type") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            TextField(
+                value = paymentDetail.amount.toString(),
+                onValueChange = {
+                    it.toDoubleOrNull()?.let { newAmount ->
+                        onUpdate(paymentDetail.copy(amount = newAmount))
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = { Text("Amount") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 
@@ -346,6 +431,18 @@ fun <T : Enum<T>> DropdownMenu(
             onValueChange = {},  // No manual input, so no changes here
             readOnly = true,  // Read-only to prevent keyboard input
             label = { Text(label) },  // Display the passed label
+            trailingIcon = {
+                if(expanded)
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropUp,
+                        contentDescription = "Dropdown Icon"
+                    )
+                else
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Dropdown Icon"
+                    )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor() // Necessary to anchor the dropdown to the TextField
