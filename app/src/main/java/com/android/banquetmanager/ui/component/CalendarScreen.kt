@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.ui.screen.Screen
+import com.android.banquetmanager.utils.FoodType
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.abs
@@ -85,12 +86,6 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
                 BottomSheetContent(navController, date, events = events, banquetLocations = banquetLocations, onEventClick = {
                     // Navigate to details screen if needed
                     navController.navigate(Screen.DateDetailsScreen.createRoute(it!!.eventId))
-                }, onDismiss = {
-                    scope.launch {
-                        sheetState.hide()
-                        selectedDate = null
-                        showBottomSheet = false
-                    }
                 })
             }
         }
@@ -241,7 +236,6 @@ fun BottomSheetContent(
     date: String,
     events: List<Event>,
     banquetLocations: List<String>, // List of all banquet locations
-    onDismiss: () -> Unit,
     onEventClick: (Event?) -> Unit
 ) {
     // Group events by banquet location
@@ -306,10 +300,21 @@ fun BottomSheetContent(
                             text = "Lunch",
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Text(
-                            text = if (isLunchBooked) "Booked" else "Available",
-                            color = if (isLunchBooked) Color.Red else Color.Green
-                        )
+                        Row {
+                            Text(
+                                text = if (isLunchBooked) "Booked" else "Available",
+                                color = if (isLunchBooked) Color.Red else Color.Green
+                            )
+                            // Display food type if lunch is booked
+                            if (isLunchBooked) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "(${lunchEvent?.foodType?.capitalize()})", // Show Veg/Non-Veg
+                                    color = if (lunchEvent?.foodType == FoodType.VEG.name) Color.Green else Color.Red,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -339,10 +344,21 @@ fun BottomSheetContent(
                             text = "Dinner",
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Text(
-                            text = if (isDinnerBooked) "Booked" else "Available",
-                            color = if (isDinnerBooked) Color.Red else Color.Green
-                        )
+                        Row {
+                            Text(
+                                text = if (isDinnerBooked) "Booked" else "Available",
+                                color = if (isDinnerBooked) Color.Red else Color.Green
+                            )
+                            // Display food type if dinner is booked
+                            if (isDinnerBooked) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "(${dinnerEvent?.foodType?.capitalize()})", // Show Veg/Non-Veg
+                                    color = if (dinnerEvent?.foodType == FoodType.VEG.name) Color.Green else Color.Red,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
                     }
                 }
             }
