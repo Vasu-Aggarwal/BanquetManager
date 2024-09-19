@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
@@ -87,6 +88,7 @@ import com.android.banquetmanager.utils.Menu
 import com.android.banquetmanager.utils.PaymentMode
 import com.android.banquetmanager.utils.SlotTime
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -103,11 +105,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
     var menu by remember { mutableStateOf(Menu.Gold) }
     var cocktail by remember { mutableStateOf(false) }
     var cocktailAmount by remember { mutableStateOf("") }
+    var displayCocktailAmount by remember { mutableStateOf("") }
     var dj by remember { mutableStateOf(false) }
     var extraPlate by remember { mutableStateOf("") }
     var flower by remember { mutableStateOf(false) }
     var flowerAmount by remember { mutableStateOf("") }
+    var displayFlowerAmount by remember { mutableStateOf("") }
     var packageAmount by remember { mutableStateOf("") }
+    var displayPackageAmount by remember { mutableStateOf("") }
     var pax by remember { mutableStateOf("") }
 
     // Updated state for date picker
@@ -206,9 +211,24 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     // Second Row: Display OutlinedTextField only if cocktail is true
                     if (cocktail) {
                         OutlinedTextField(
-                            value = cocktailAmount,
-                            onValueChange = { cocktailAmount = it },
+                            value = displayCocktailAmount,
+                            onValueChange = {
+                                cocktailAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = cocktailAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayCocktailAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayCocktailAmount = it // If not a valid number, just show the input
+                                }
+                            },
                             label = { Text(text = "Cocktail Amount") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -282,11 +302,26 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
 
                     if (flower) {
                         OutlinedTextField(
-                            value = flowerAmount,
-                            onValueChange = { flowerAmount = it },
+                            value = displayFlowerAmount,
+                            onValueChange = {
+                                flowerAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = flowerAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayFlowerAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayFlowerAmount = it // If not a valid number, just show the input
+                                }
+                            },
                             label = { Text(text = "Flower Amount") },
                             singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             maxLines = 1,
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
                             modifier = Modifier.fillMaxWidth(),
                             shape = MaterialTheme.shapes.small
                         )
@@ -380,11 +415,25 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
-                            value = packageAmount,
-                            onValueChange = { packageAmount = it },
+                            value = displayPackageAmount,
+                            onValueChange = {
+                                packageAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = packageAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayPackageAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayPackageAmount = it // If not a valid number, just show the input
+                                }
+                            },
                             label = {  },
                             singleLine = true,
                             maxLines = 1,
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth(),
                             shape = MaterialTheme.shapes.small
