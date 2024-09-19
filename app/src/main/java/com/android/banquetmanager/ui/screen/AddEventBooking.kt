@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
@@ -154,7 +155,8 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection) // Attach scroll behavior
                 .padding(it)
-                .padding(start = 16.dp, end = 16.dp)
+                .padding(start = 16.dp, end = 16.dp),
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
             item {
                 //Dropdown for the banquet locations
@@ -180,33 +182,38 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                         )
                     }
                 }
-
+                
                 // Cocktail toggle and input
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
-                        modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Cocktail: ")
-                    }
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Cocktail: ")
+                        }
 
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Switch(checked = cocktail, onCheckedChange = { cocktail = it })
-                        if (cocktail) {
-                            TextField(
-                                value = cocktailAmount,
-                                onValueChange = { cocktailAmount = it },
-                                label = {  },
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Switch(checked = cocktail, onCheckedChange = { cocktail = it })
                         }
                     }
+
+                    // Second Row: Display OutlinedTextField only if cocktail is true
+                    if (cocktail) {
+                        OutlinedTextField(
+                            value = cocktailAmount,
+                            onValueChange = { cocktailAmount = it },
+                            label = { Text(text = "Cocktail Amount") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
+
 
                 // DJ toggle and input
                 Row(
@@ -255,31 +262,34 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 }
 
                 // Flower toggle and input
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
-                        modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Flowers: ")
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
-                        if (flower) {
-                            OutlinedTextField(
-                                value = flowerAmount,
-                                onValueChange = { flowerAmount = it },
-                                label = {  },
-                                singleLine = true,
-                                maxLines = 1,
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = MaterialTheme.shapes.small
-                            )
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Flowers: ")
                         }
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
+                        }
+                    }
+
+                    if (flower) {
+                        OutlinedTextField(
+                            value = flowerAmount,
+                            onValueChange = { flowerAmount = it },
+                            label = { Text(text = "Flower Amount") },
+                            singleLine = true,
+                            maxLines = 1,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
                     }
                 }
 
@@ -410,7 +420,8 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 }
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 10.dp)
                 ) {
                     Row(
                         modifier = Modifier.weight(1f),
@@ -433,9 +444,15 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                                     MaterialTheme.colorScheme.outline,
                                     shape = MaterialTheme.shapes.small
                                 )
-                                .padding(16.dp)
+                                .padding(20.dp)
                         ) {
-                            Text(text = dateBooked, style = MaterialTheme.typography.bodyLarge)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = dateBooked, style = MaterialTheme.typography.bodyLarge)
+                                Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = "Date picker")
+                            }
                         }
                     }
                 }
