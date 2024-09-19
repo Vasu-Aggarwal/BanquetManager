@@ -29,14 +29,17 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerColors
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,6 +57,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -64,6 +68,7 @@ import com.android.banquetmanager.utils.BanquetLocations
 import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.FunctionType
 import com.android.banquetmanager.utils.Menu
+import com.android.banquetmanager.utils.PaymentMode
 import com.android.banquetmanager.utils.SlotTime
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -83,7 +88,6 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
     var cocktail by remember { mutableStateOf(false) }
     var cocktailAmount by remember { mutableStateOf("") }
     var dj by remember { mutableStateOf(false) }
-    var djAmount by remember { mutableStateOf("") }
     var extraPlate by remember { mutableStateOf("") }
     var flower by remember { mutableStateOf(false) }
     var flowerAmount by remember { mutableStateOf("") }
@@ -145,14 +149,6 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         Row {
             Text(text = "Include DJ?")
             Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
-            if (dj) {
-                TextField(
-                    value = djAmount,
-                    onValueChange = { djAmount = it },
-                    label = { Text("DJ Amount") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
         }
 
         // Extra Plates input
@@ -188,7 +184,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 list = FunctionType.entries,
                 selectedItem = functionType,
                 onItemSelected = { functionType = it },
-                label = "Function type",
+                label = "",
                 displayName = { it.displayName }
             )
         }
@@ -200,7 +196,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 list = FoodType.entries,
                 selectedItem = foodType,
                 onItemSelected = { foodType = it },
-                label = "Food type",
+                label = "",
                 displayName = { it.displayName }
             )
         }
@@ -212,7 +208,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 list = Menu.entries,
                 selectedItem = menu,
                 onItemSelected = { menu = it },
-                label = "Menu",
+                label = "",
                 displayName = { it.displayName }
             )
         }
@@ -347,7 +343,6 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                         cocktail = cocktail,
                         cocktailAmount = cocktailAmount.toDoubleOrNull() ?: 0.0,
                         dj = dj,
-                        djAmount = djAmount.toDoubleOrNull() ?: 0.0,
                         extraPlate = extraPlate.toLongOrNull() ?: 0,
                         flower = flower,
                         flowerAmount = flowerAmount.toDoubleOrNull() ?: 0.0,
@@ -376,6 +371,9 @@ fun PaymentDetailsForm(
     onUpdate: (Payment) -> Unit,
     onDelete: (Payment) -> Unit
 ) {
+
+    var paymentMode by remember { mutableStateOf(PaymentMode.CASH) }
+
     Card(
         modifier = Modifier.padding(5.dp)
     ){
@@ -386,11 +384,12 @@ fun PaymentDetailsForm(
                 tint = Color.Red,
                 modifier = Modifier.clickable { onDelete(paymentDetail) }
             )
-            TextField(
-                value = paymentDetail.paymentMode,
-                onValueChange = { onUpdate(paymentDetail.copy(paymentMode = it)) },
-                label = { Text("Payment Type") },
-                modifier = Modifier.fillMaxWidth()
+            DropdownMenu(
+                list = PaymentMode.entries,
+                selectedItem = paymentMode,
+                onItemSelected = { paymentMode = it },
+                label = "",
+                displayName = { it.displayName }
             )
             TextField(
                 value = paymentDetail.amount.toString(),
@@ -403,11 +402,18 @@ fun PaymentDetailsForm(
                 label = { Text("Amount") },
                 modifier = Modifier.fillMaxWidth()
             )
+            TextField(
+                value = paymentDetail.paymentDescription,
+                onValueChange = {
+                    onUpdate(paymentDetail.copy(paymentDescription = it))
+                },
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T : Enum<T>> DropdownMenu(
@@ -426,26 +432,23 @@ fun <T : Enum<T>> DropdownMenu(
         onExpandedChange = { expanded = !expanded }  // Toggle expanded state on click
     ) {
         // The TextField that displays the selected enum and toggles the dropdown
-        TextField(
+        OutlinedTextField(
             value = displayName(selectedItem),  // Show selected enum name
             onValueChange = {},  // No manual input, so no changes here
             readOnly = true,  // Read-only to prevent keyboard input
             label = { Text(label) },  // Display the passed label
             trailingIcon = {
-                if(expanded)
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropUp,
-                        contentDescription = "Dropdown Icon"
-                    )
-                else
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Dropdown Icon"
-                    )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Icon",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             },
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor() // Necessary to anchor the dropdown to the TextField
+                .padding(vertical = 4.dp)
         )
 
         // The dropdown menu
@@ -455,15 +458,14 @@ fun <T : Enum<T>> DropdownMenu(
         ) {
             // Loop through all enum values and display them in the dropdown
             list.forEach { item ->
-                Text(
-                    text = displayName(item),  // Display the enum name
+                DropdownMenuItem(
+                    text = { Text(displayName(item), style = MaterialTheme.typography.bodyMedium) },
+                    onClick = {
+                        onItemSelected(item)  // Update the selected item
+                        expanded = false  // Close the dropdown after selection
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-                            onItemSelected(item)  // Update the selected item
-                            expanded = false  // Close the dropdown after selection
-                        }
-                        .padding(16.dp)
                 )
             }
         }

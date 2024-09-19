@@ -10,7 +10,6 @@ data class Event(
     val cocktailAmount: Double = 0.0,
     val createdOn: Timestamp = Timestamp.now(),
     val dj: Boolean = false,
-    val djAmount: Double = 0.0,
     val extraPlate: Long = 0,
     val flower: Boolean = false,
     val flowerAmount: Double = 0.0,
