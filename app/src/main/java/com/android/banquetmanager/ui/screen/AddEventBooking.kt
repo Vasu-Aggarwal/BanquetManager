@@ -7,25 +7,34 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerColors
 import androidx.compose.material3.DatePickerDefaults
@@ -34,13 +43,16 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,6 +64,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -109,398 +123,442 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
     var paymentDetails by remember { mutableStateOf(listOf<Payment>()) }
     val context = LocalContext.current
     // Add vertical scroll
-    val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .verticalScroll(scrollState)
-    ) {
-        Text("Add a new Booking")
-
-        //Dropdown for the banquet locations
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Banquet Location: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                DropdownMenu(
-                    list = BanquetLocations.entries,
-                    selectedItem = banquetLocation,
-                    onItemSelected = { banquetLocation = it },
-                    label = "",
-                    displayName = { it.displayName }
-                )
-            }
-        }
-
-        // Cocktail toggle and input
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 15.dp)
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Cocktail: ")
-            }
-
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Switch(checked = cocktail, onCheckedChange = { cocktail = it })
-                if (cocktail) {
-                    TextField(
-                        value = cocktailAmount,
-                        onValueChange = { cocktailAmount = it },
-                        label = { Text("Cocktail Amount") },
-                        modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "New Booking",
+                        style = MaterialTheme.typography.titleLarge, // Adjust text style if needed
                     )
-                }
-            }
-        }
-
-        // DJ toggle and input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "DJ: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
-            }
-        }
-
-        // Extra Plates input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Extra Plates: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                TextField(
-                    value = extraPlate,
-                    onValueChange = { extraPlate = it },
-                    label = {  },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        // Flower toggle and input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Include Flowers?")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
-                if (flower) {
-                    TextField(
-                        value = flowerAmount,
-                        onValueChange = { flowerAmount = it },
-                        label = { Text("Flower Amount") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-
-        // Function Type input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Function Type: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                DropdownMenu(
-                    list = FunctionType.entries,
-                    selectedItem = functionType,
-                    onItemSelected = { functionType = it },
-                    label = "",
-                    displayName = { it.displayName }
-                )
-            }
-        }
-
-        // Food Type input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Food Type: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                DropdownMenu(
-                    list = FoodType.entries,
-                    selectedItem = foodType,
-                    onItemSelected = { foodType = it },
-                    label = "",
-                    displayName = { it.displayName }
-                )
-            }
-        }
-
-        // Menu input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Menu: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                DropdownMenu(
-                    list = Menu.entries,
-                    selectedItem = menu,
-                    onItemSelected = { menu = it },
-                    label = "",
-                    displayName = { it.displayName }
-                )
-            }
-        }
-
-        // Package Amount input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Package Amount: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                TextField(
-                    value = packageAmount,
-                    onValueChange = { packageAmount = it },
-                    label = { Text("Package Amount") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        // Pax input
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Pax: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                TextField(
-                    value = pax,
-                    onValueChange = { pax = it },
-                    label = { Text("Pax") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        // Date picker for "Date Booked"
-        if(showDatePicker){
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(onClick = {
-                        dateBooked = selectedDate
-                        showDatePicker = false
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+//                        navController.popBackStack()
                     }) {
-                        Text("OK")
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text("Cancel")
-                    }
-                }
-            ) {
-                DatePicker(
-                    state = datePickerState
-                )
-            }
+                actions = {  },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                scrollBehavior = scrollBehavior
+            )
         }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(scrollBehavior.nestedScrollConnection) // Attach scroll behavior
+                .padding(it)
+                .padding(start = 16.dp, end = 16.dp)
         ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Date Booked: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            showDatePicker = true
-                        }
-                        .border(1.dp, MaterialTheme.colorScheme.outline)
-                        .padding(16.dp)
-                ) {
-                    Text(text = dateBooked, style = MaterialTheme.typography.bodyLarge)
-                }
-            }
-        }
-
-        // Lunch toggle
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Lunch: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Switch(
-                    checked = lunch,
-                    onCheckedChange = { lunch = it },
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-        }
-
-        // Dinner toggle
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Dinner: ")
-            }
-            Row(
-                modifier = Modifier.weight(1f)
-            ) {
-                Switch(
-                    checked = dinner,
-                    onCheckedChange = { dinner = it },
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-        }
-
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ){
-            Column {
+            item {
+                //Dropdown for the banquet locations
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add payment", tint = Color.Blue)
-
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(Color.Blue)) {
-                                append("Add Payment Details")
-                            }
-                        },
-                        modifier = Modifier
-                            .clickable {
-                                // Add new empty payment detail
-                                paymentDetails = paymentDetails + Payment()
-                            }
-                            .padding(vertical = 8.dp)
-                    )
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Banquet Location: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        DropdownMenu(
+                            list = BanquetLocations.entries,
+                            selectedItem = banquetLocation,
+                            onItemSelected = { banquetLocation = it },
+                            label = "",
+                            displayName = { it.displayName }
+                        )
+                    }
                 }
 
-                // Display all payment details forms
-                paymentDetails.forEachIndexed { index, paymentDetail ->
-                    PaymentDetailsForm(
-                        paymentDetail = paymentDetail,
-                        onUpdate = { updatedDetail ->
-                            paymentDetails = paymentDetails.toMutableList().apply {
-                                this[index] = updatedDetail
+                // Cocktail toggle and input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 15.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Cocktail: ")
+                    }
+
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Switch(checked = cocktail, onCheckedChange = { cocktail = it })
+                        if (cocktail) {
+                            TextField(
+                                value = cocktailAmount,
+                                onValueChange = { cocktailAmount = it },
+                                label = {  },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+
+                // DJ toggle and input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "DJ: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
+                    }
+                }
+
+                // Extra Plates input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Extra Plates: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        OutlinedTextField(
+                            value = extraPlate,
+                            onValueChange = { extraPlate = it },
+                            label = {  },
+                            singleLine = true,
+                            maxLines = 1,
+                            shape = MaterialTheme.shapes.small,
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                // Flower toggle and input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Flowers: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
+                        if (flower) {
+                            OutlinedTextField(
+                                value = flowerAmount,
+                                onValueChange = { flowerAmount = it },
+                                label = {  },
+                                singleLine = true,
+                                maxLines = 1,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.small
+                            )
+                        }
+                    }
+                }
+
+                // Function Type input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Function Type: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        DropdownMenu(
+                            list = FunctionType.entries,
+                            selectedItem = functionType,
+                            onItemSelected = { functionType = it },
+                            label = "",
+                            displayName = { it.displayName }
+                        )
+                    }
+                }
+
+                // Food Type input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Food Type: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        DropdownMenu(
+                            list = FoodType.entries,
+                            selectedItem = foodType,
+                            onItemSelected = { foodType = it },
+                            label = "",
+                            displayName = { it.displayName }
+                        )
+                    }
+                }
+
+                // Menu input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Menu: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        DropdownMenu(
+                            list = Menu.entries,
+                            selectedItem = menu,
+                            onItemSelected = { menu = it },
+                            label = "",
+                            displayName = { it.displayName }
+                        )
+                    }
+                }
+
+                // Package Amount input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Package Amount: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        OutlinedTextField(
+                            value = packageAmount,
+                            onValueChange = { packageAmount = it },
+                            label = {  },
+                            singleLine = true,
+                            maxLines = 1,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    }
+                }
+
+                // Pax input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Pax: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        OutlinedTextField(
+                            value = pax,
+                            onValueChange = { pax = it },
+                            label = {  },
+                            singleLine = true,
+                            maxLines = 1,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Date Booked: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showDatePicker = true
+                                }
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .padding(16.dp)
+                        ) {
+                            Text(text = dateBooked, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+
+                // Date picker for "Date Booked"
+                if(showDatePicker){
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                dateBooked = selectedDate
+                                showDatePicker = false
+                            }) {
+                                Text("OK")
                             }
                         },
-                        onDelete = { updatedDetail ->
-                            paymentDetails = paymentDetails.toMutableList().apply {
-                                removeAt(index)
+                        dismissButton = {
+                            TextButton(onClick = { showDatePicker = false }) {
+                                Text("Cancel")
                             }
                         }
-                    )
+                    ) {
+                        DatePicker(
+                            state = datePickerState
+                        )
+                    }
+                }
+
+                // Lunch toggle
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Lunch: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Switch(
+                            checked = lunch,
+                            onCheckedChange = { lunch = it },
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                }
+
+                // Dinner toggle
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Dinner: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Switch(
+                            checked = dinner,
+                            onCheckedChange = { dinner = it },
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Column {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add payment", tint = Color.Blue)
+
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(Color.Blue)) {
+                                        append("Add Payment Details")
+                                    }
+                                },
+                                modifier = Modifier
+                                    .clickable {
+                                        // Add new empty payment detail
+                                        paymentDetails = paymentDetails + Payment()
+                                    }
+                                    .padding(vertical = 8.dp)
+                            )
+                        }
+
+                        // Display all payment details forms
+                        paymentDetails.forEachIndexed { index, paymentDetail ->
+                            PaymentDetailsForm(
+                                paymentDetail = paymentDetail,
+                                onUpdate = { updatedDetail ->
+                                    paymentDetails = paymentDetails.toMutableList().apply {
+                                        this[index] = updatedDetail
+                                    }
+                                },
+                                onDelete = { updatedDetail ->
+                                    paymentDetails = paymentDetails.toMutableList().apply {
+                                        removeAt(index)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Button to submit the form
+                Button(onClick = {
+                    Toast.makeText(context, "Adding the booking", Toast.LENGTH_SHORT).show()
+                    // Pass the user input to the ViewModel to add the event booking
+                    scope.launch {
+                        bookingViewmodel.addBooking(
+                            Event(
+                                banquetLocation = banquetLocation.name,
+                                cocktail = cocktail,
+                                cocktailAmount = cocktailAmount.toDoubleOrNull() ?: 0.0,
+                                dj = dj,
+                                extraPlate = extraPlate.toLongOrNull() ?: 0,
+                                flower = flower,
+                                flowerAmount = flowerAmount.toDoubleOrNull() ?: 0.0,
+                                foodType = foodType.name,
+                                functionType = functionType.name,
+                                menu = menu.name,
+                                packageAmount = packageAmount.toDoubleOrNull() ?: 0.0,
+                                pax = pax.toLongOrNull() ?: 0,
+                                dateBooked = dateBooked,
+                                lunch = lunch,
+                                dinner = dinner
+                            ),
+                            paymentDetails
+                        )
+                    }
+//            onEventAdded() // Callback when the event is added
+                }) {
+                    Text("Add Event")
                 }
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Button to submit the form
-        Button(onClick = {
-            Toast.makeText(context, "Adding the booking", Toast.LENGTH_SHORT).show()
-            // Pass the user input to the ViewModel to add the event booking
-            scope.launch {
-                bookingViewmodel.addBooking(
-                    Event(
-                        banquetLocation = banquetLocation.name,
-                        cocktail = cocktail,
-                        cocktailAmount = cocktailAmount.toDoubleOrNull() ?: 0.0,
-                        dj = dj,
-                        extraPlate = extraPlate.toLongOrNull() ?: 0,
-                        flower = flower,
-                        flowerAmount = flowerAmount.toDoubleOrNull() ?: 0.0,
-                        foodType = foodType.name,
-                        functionType = functionType.name,
-                        menu = menu.name,
-                        packageAmount = packageAmount.toDoubleOrNull() ?: 0.0,
-                        pax = pax.toLongOrNull() ?: 0,
-                        dateBooked = dateBooked,
-                        lunch = lunch,
-                        dinner = dinner
-                    ),
-                    paymentDetails
-                )
-            }
-//            onEventAdded() // Callback when the event is added
-        }) {
-            Text("Add Event")
         }
     }
 }
@@ -577,6 +635,8 @@ fun <T : Enum<T>> DropdownMenu(
             onValueChange = {},  // No manual input, so no changes here
             readOnly = true,  // Read-only to prevent keyboard input
             label = { Text(label) },  // Display the passed label
+            singleLine = true,
+            maxLines = 1,
             trailingIcon = {
                 Icon(
                     imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
@@ -584,7 +644,8 @@ fun <T : Enum<T>> DropdownMenu(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             },
-            textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+            shape = MaterialTheme.shapes.small,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor() // Necessary to anchor the dropdown to the TextField
