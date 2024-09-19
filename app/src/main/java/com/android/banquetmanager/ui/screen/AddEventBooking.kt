@@ -162,12 +162,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Banquet Location: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         DropdownMenu(
                             list = BanquetLocations.entries,
@@ -181,17 +183,18 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
 
                 // Cocktail toggle and input
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 15.dp)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Cocktail: ")
                     }
 
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Switch(checked = cocktail, onCheckedChange = { cocktail = it })
                         if (cocktail) {
@@ -210,12 +213,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "DJ: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
                     }
@@ -226,12 +231,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Extra Plates: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
                             value = extraPlate,
@@ -252,12 +259,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Flowers: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
                         if (flower) {
@@ -279,12 +288,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Function Type: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         DropdownMenu(
                             list = FunctionType.entries,
@@ -301,12 +312,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Food Type: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         DropdownMenu(
                             list = FoodType.entries,
@@ -323,12 +336,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Menu: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         DropdownMenu(
                             list = Menu.entries,
@@ -345,12 +360,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Package Amount: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
                             value = packageAmount,
@@ -370,12 +387,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Pax: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
                             value = pax,
@@ -394,12 +413,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Date Booked: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
@@ -448,12 +469,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Lunch: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Switch(
                             checked = lunch,
@@ -468,12 +491,14 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "Dinner: ")
                     }
                     Row(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Switch(
                             checked = dinner,
