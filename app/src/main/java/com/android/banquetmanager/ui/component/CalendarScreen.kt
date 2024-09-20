@@ -1,19 +1,15 @@
 package com.android.banquetmanager.ui.component
 
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,7 +22,6 @@ import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.SlotTime
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +65,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
             }
         )
 
-        BalancesView()
+        BalancesView(navController, viewModel)
     }
 
     if (showBottomSheet) {
@@ -93,11 +88,6 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
             }
         }
     }
-}
-
-@Composable
-fun BalancesView(){
-    Text(text = "Showing")   
 }
 
 @Composable
@@ -350,6 +340,60 @@ fun BottomSheetContent(
         }
     }
 }
+
+@Composable
+fun BalancesView(navController: NavController, viewModel: BookingViewmodel) {
+    // State to hold the list of events
+    var events by remember { mutableStateOf(listOf<Event>()) }
+
+    // Call the method to fetch the monthly balances
+    LaunchedEffect(Unit) {
+        val fetchedEvents = viewModel.getMonthlyBalancesByMonthYear(9, 2024)
+        // Update the state with the fetched events
+        events = fetchedEvents
+    }
+
+    // Display a list of event balance cards
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(events) { event ->
+            BalanceCard(event = event)
+        }
+    }
+}
+
+@Composable
+fun BalanceCard(event: Event) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(8.dp),
+//        elevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Event: ${event.banquetLocation}"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Date Booked: ${event.dateBooked}"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Balance: ${event.balance}",
+                color = if (event.balance > 0) Color.Red else Color.Red
+            )
+        }
+    }
+}
+
 
 private fun getDaysInMonth(month: Int, year: Int): Int {
     val calendar = Calendar.getInstance().apply {

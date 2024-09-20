@@ -8,4 +8,5 @@ interface BookingRepository {
     suspend fun getBookingsByDate(date: String): List<Event>
     suspend fun addBooking(event: Event, payments: List<Payment>)
     suspend fun getBookingByEventId(eventId: String): Event
+    suspend fun getMonthlyBalancesByMonthYear(month: Int, year: Int): List<Event>
 }

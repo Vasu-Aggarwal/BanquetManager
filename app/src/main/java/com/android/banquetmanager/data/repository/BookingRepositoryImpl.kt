@@ -93,4 +93,29 @@ class BookingRepositoryImpl @Inject constructor(private val firebaseFirestore: F
         }
     }
 
+    override suspend fun getMonthlyBalancesByMonthYear(month: Int, year: Int): List<Event> {
+        return try {
+            // Query Firestore to fetch events matching the month, year, and balance > 0
+            val querySnapshot = firebaseFirestore.collection("event")
+                .whereEqualTo("month", month) // Ensure month is an integer
+                .whereEqualTo("year", year)   // Ensure year is an integer
+                .whereGreaterThan("balance", 0)      // Filter events with balance > 0
+                .get()
+                .await() // Use await to suspend until the result is available
+
+            Log.d("Monthly balances", "getMonthlyBalancesByMonthYear: ${querySnapshot.documents}")
+
+            // Map the query results to a list of Event objects
+            val events = querySnapshot.documents.mapNotNull { documentSnapshot ->
+                documentSnapshot.toObject(Event::class.java) // Convert each document to Event
+            }
+
+            events // Return the list of events
+        } catch (e: Exception) {
+            Log.e("Firestore Error", "Error querying monthly balances", e)
+            // Handle exceptions by throwing or returning an empty list
+            throw e // You can replace this with a custom exception if necessary
+        }
+    }
+
 }
