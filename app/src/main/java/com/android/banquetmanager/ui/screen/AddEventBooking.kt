@@ -530,17 +530,6 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                             state = datePickerState
                         )
                     }
-
-                    if (selectedDate.length >0){
-                        val newDate: Date = selectedTimestamp!!.toDate()
-                        val calendar = Calendar.getInstance()
-                        calendar.time = newDate
-
-                        val day = calendar.get(Calendar.DAY_OF_MONTH)
-                        val month = calendar.get(Calendar.MONTH) + 1 // Month is 0-based, so we add 1
-                        val year = calendar.get(Calendar.YEAR)
-                        Toast.makeText(context, "$day/$month/$year", Toast.LENGTH_SHORT).show()
-                    }
                 }
 
                 // Lunch toggle
