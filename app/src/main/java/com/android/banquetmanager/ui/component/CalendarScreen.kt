@@ -64,7 +64,6 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
                 showBottomSheet = false
             }
         )
-
         BalancesView(navController, viewModel)
     }
 
