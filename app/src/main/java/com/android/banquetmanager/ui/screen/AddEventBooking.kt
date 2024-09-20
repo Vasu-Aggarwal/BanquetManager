@@ -1,49 +1,39 @@
 package com.android.banquetmanager.ui.screen
 
-import android.app.DatePickerDialog
-import android.graphics.Paint.Align
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CurrencyRupee
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerColors
-import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,8 +42,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -64,20 +52,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
@@ -87,6 +70,7 @@ import com.android.banquetmanager.utils.FunctionType
 import com.android.banquetmanager.utils.Menu
 import com.android.banquetmanager.utils.PaymentMode
 import com.android.banquetmanager.utils.SlotTime
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -97,7 +81,7 @@ import kotlin.enums.EnumEntries
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmodel = hiltViewModel()) {
+fun AddEventBooking(date: String, slot: String, navController: NavController, bookingViewmodel: BookingViewmodel = hiltViewModel()) {
     // State for form inputs
     var banquetLocation by remember { mutableStateOf(BanquetLocations.SK_EASTEND) }
     var functionType by remember { mutableStateOf(FunctionType.WEDDING) }
@@ -123,6 +107,11 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
         convertMillisToDate(it)
     } ?: ""
 
+    // Convert selectedDateMillis to a Firestore Timestamp
+    val selectedTimestamp = datePickerState.selectedDateMillis?.let {
+        Timestamp(Date(it)) // Firestore Timestamp from milliseconds
+    }
+
     var lunch by remember { mutableStateOf(slot == SlotTime.LUNCH.name) }
     var dinner by remember { mutableStateOf(slot == SlotTime.DINNER.name) }
     // State for dynamic payment details
@@ -143,7 +132,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-//                        navController.popBackStack()
+                        navController.popBackStack()
                     }) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
@@ -153,6 +142,19 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                     .fillMaxWidth(),
                 scrollBehavior = scrollBehavior
             )
+        },
+        floatingActionButton = {
+            // Floating Action Button at the bottom right
+            FloatingActionButton(
+                onClick = {
+                    // Add new empty payment detail
+                    paymentDetails = paymentDetails + Payment()
+                },
+                modifier = Modifier
+                    .padding(16.dp), // Add padding to keep FAB away from the edge of the screen
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add payment")
+            }
         }
     ) {
         LazyColumn(
@@ -187,7 +189,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                         )
                     }
                 }
-                
+
                 // Cocktail toggle and input
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
@@ -528,6 +530,17 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                             state = datePickerState
                         )
                     }
+
+                    if (selectedDate.length >0){
+                        val newDate: Date = selectedTimestamp!!.toDate()
+                        val calendar = Calendar.getInstance()
+                        calendar.time = newDate
+
+                        val day = calendar.get(Calendar.DAY_OF_MONTH)
+                        val month = calendar.get(Calendar.MONTH) + 1 // Month is 0-based, so we add 1
+                        val year = calendar.get(Calendar.YEAR)
+                        Toast.makeText(context, "$day/$month/$year", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 // Lunch toggle
@@ -575,30 +588,15 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                 }
 
                 Box(
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add payment", tint = Color.Blue)
-
-                            Text(
-                                text = buildAnnotatedString {
-                                    withStyle(style = SpanStyle(Color.Blue)) {
-                                        append("Add Payment Details")
-                                    }
-                                },
-                                modifier = Modifier
-                                    .clickable {
-                                        // Add new empty payment detail
-                                        paymentDetails = paymentDetails + Payment()
-                                    }
-                                    .padding(vertical = 8.dp)
-                            )
-                        }
-
-                        // Display all payment details forms
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    // Display all payment details forms
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         paymentDetails.forEachIndexed { index, paymentDetail ->
                             PaymentDetailsForm(
                                 paymentDetail = paymentDetail,
@@ -607,7 +605,7 @@ fun AddEventBooking(date: String, slot: String, bookingViewmodel: BookingViewmod
                                         this[index] = updatedDetail
                                     }
                                 },
-                                onDelete = { updatedDetail ->
+                                onDelete = {
                                     paymentDetails = paymentDetails.toMutableList().apply {
                                         removeAt(index)
                                     }
@@ -660,46 +658,65 @@ fun PaymentDetailsForm(
     onUpdate: (Payment) -> Unit,
     onDelete: (Payment) -> Unit
 ) {
-
     var paymentMode by remember { mutableStateOf(PaymentMode.CASH) }
 
-    Card(
-        modifier = Modifier.padding(5.dp)
-    ){
-        Column {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Delete payment details",
-                tint = Color.Red,
-                modifier = Modifier.clickable { onDelete(paymentDetail) }
-            )
-            DropdownMenu(
-                list = PaymentMode.entries,
-                selectedItem = paymentMode,
-                onItemSelected = { paymentMode = it },
-                label = "",
-                displayName = { it.displayName }
-            )
-            TextField(
-                value = paymentDetail.amount.toString(),
-                onValueChange = {
-                    it.toDoubleOrNull()?.let { newAmount ->
-                        onUpdate(paymentDetail.copy(amount = newAmount))
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = { Text("Amount") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            TextField(
-                value = paymentDetail.paymentDescription,
-                onValueChange = {
-                    onUpdate(paymentDetail.copy(paymentDescription = it))
-                },
-                label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        // Main card with payment details
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp), // Add some padding so the delete button is not overlapped
+            shape = RoundedCornerShape(8.dp),
+            elevation = CardDefaults.cardElevation(4.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Dropdown for Payment Mode
+                DropdownMenu(
+                    list = PaymentMode.entries,
+                    selectedItem = paymentMode,
+                    onItemSelected = { paymentMode = it },
+                    label = "",
+                    displayName = { it.displayName }
+                )
+                // Amount input field
+                OutlinedTextField(
+                    value = paymentDetail.amount.toString(),
+                    onValueChange = {
+                        it.toDoubleOrNull()?.let { newAmount ->
+                            onUpdate(paymentDetail.copy(amount = newAmount))
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    label = { Text("Amount") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                // Description input field
+                OutlinedTextField(
+                    value = paymentDetail.paymentDescription,
+                    onValueChange = {
+                        onUpdate(paymentDetail.copy(paymentDescription = it))
+                    },
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Button(
+                    modifier = Modifier
+                        .width(130.dp)
+                        .padding(top = 10.dp),
+                    onClick = { onDelete(paymentDetail) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text(text = "DELETE")
+                }
+            }
         }
     }
 }

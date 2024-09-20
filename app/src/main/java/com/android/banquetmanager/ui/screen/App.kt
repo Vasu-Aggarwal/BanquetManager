@@ -35,7 +35,7 @@ fun App(){
             val slot = backStackEntry.arguments?.getString("slot")
 
             if (date != null && slot != null) {
-                AddEventBooking(date = date, slot = slot)
+                AddEventBooking(date = date, slot = slot, navController)
             }
         }
     }
