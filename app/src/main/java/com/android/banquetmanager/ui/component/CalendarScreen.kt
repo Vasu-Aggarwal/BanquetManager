@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.ui.screen.Screen
+import com.android.banquetmanager.utils.BanquetLocations
 import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.SlotTime
 import kotlinx.coroutines.launch
@@ -37,7 +38,6 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     var balanceEvents by remember { mutableStateOf<List<Event>>(emptyList()) }
     val scope = rememberCoroutineScope()
-    val banquetLocations: List<String> = listOf("SK_EASTEND", "RAJWADA")
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
@@ -73,7 +73,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
             }
         )
 
-        BalancesView(navController, viewModel, balanceEvents)
+        BalancesView(navController, balanceEvents)
     }
 
     if (showBottomSheet) {
@@ -89,7 +89,7 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
         ){
             if (selectedDate != null) {
                 val date = "${String.format("%02d", selectedDate!!.first)}/${String.format("%02d", selectedDate!!.second)}/$currentYear"
-                BottomSheetContent(navController, date, events = events, banquetLocations = banquetLocations, onEventClick = {
+                BottomSheetContent(navController, date, events = events, onEventClick = {
                     // Navigate to details screen if needed
                     navController.navigate(Screen.DateDetailsScreen.createRoute(it!!.eventId))
                 })
@@ -220,7 +220,6 @@ fun BottomSheetContent(
     navController: NavController,
     date: String,
     events: List<Event>,
-    banquetLocations: List<String>, // List of all banquet locations
     onEventClick: (Event?) -> Unit
 ) {
     // Group events by banquet location
@@ -230,9 +229,9 @@ fun BottomSheetContent(
         modifier = Modifier.padding(16.dp)
     ) {
         // Iterate over the list of all banquet locations
-        banquetLocations.forEach { banquetLocation ->
+        BanquetLocations.entries.forEach { banquetLocation ->
             // Get the events for the current banquet location
-            val eventsForLocation = groupedEvents[banquetLocation] ?: emptyList()
+            val eventsForLocation = groupedEvents[banquetLocation.name] ?: emptyList()
 
             // Determine slot availability for lunch and dinner
             val lunchEvent = eventsForLocation.firstOrNull { !it.lunch }
@@ -248,7 +247,7 @@ fun BottomSheetContent(
             ) {
                 // Location name
                 Text(
-                    text = banquetLocation,
+                    text = banquetLocation.displayName,
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(bottom = 8.dp),
                     textAlign = TextAlign.Center
@@ -354,18 +353,8 @@ fun BottomSheetContent(
 @Composable
 fun BalancesView(
     navController: NavController,
-    viewModel: BookingViewmodel,
     balanceEvents: List<Event>
 ) {
-//    // State to hold the list of events
-//    var events by remember { mutableStateOf(listOf<Event>()) }
-//
-//    // Call the method to fetch the monthly balances
-//    LaunchedEffect(Unit) {
-//        val fetchedEvents = viewModel.getMonthlyBalancesByMonthYear(currentMonth, currentYear)
-//        // Update the state with the fetched events
-//        events = fetchedEvents
-//    }
 
     // Display a list of event balance cards
     LazyColumn(
@@ -387,7 +376,6 @@ fun BalanceCard(event: Event) {
             .fillMaxWidth()
             .padding(8.dp),
         shape = RoundedCornerShape(8.dp),
-//        elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
@@ -395,7 +383,7 @@ fun BalanceCard(event: Event) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "Event: ${event.banquetLocation}"
+                text = "Event: ${event.functionType}"
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(

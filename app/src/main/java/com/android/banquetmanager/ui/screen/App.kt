@@ -7,41 +7,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.android.banquetmanager.ui.component.BottomNavigation
 import com.android.banquetmanager.ui.component.CalendarScreen
 
 @Composable
 fun App(){
+
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.CalendarScreen.route){
-        composable(route = Screen.CalendarScreen.route){
-            CalendarScreen(navController = navController)
-        }
-
-        composable(
-            route = "dateDetailsScreen/{eventId}",
-            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val eventId = backStackEntry.arguments?.getString("eventId")
-            eventId?.let {
-                DateDetailsScreen(eventId)
-            }
-        }
-
-        composable(
-            route = "addEventBooking/{date}/{slot}",
-            arguments = listOf(navArgument("date") { type = NavType.StringType }, navArgument("slot") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val date = backStackEntry.arguments?.getString("date")
-            val slot = backStackEntry.arguments?.getString("slot")
-
-            if (date != null && slot != null) {
-                AddEventBooking(date = date, slot = slot, navController)
-            }
+    NavHost(navController = navController, startDestination = Screen.BottomNavigationBar.route) {
+        composable(route = Screen.BottomNavigationBar.route) {
+            BottomNavigation(navAppController = navController)
         }
     }
 }
 
 sealed class Screen(val route: String){
+
+    data object BottomNavigationBar: Screen("bottomBar")
     data object DateDetailsScreen: Screen("dateDetailsScreen/{eventId}"){
         fun createRoute(eventId: String) = "dateDetailsScreen/$eventId"
     }
