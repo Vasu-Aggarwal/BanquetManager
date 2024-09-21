@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.android.banquetmanager.data.repository.BookingRepository
-import com.android.banquetmanager.ui.screen.App
+import com.android.banquetmanager.ui.component.App
 import com.android.banquetmanager.ui.theme.BanquetManagerTheme
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint

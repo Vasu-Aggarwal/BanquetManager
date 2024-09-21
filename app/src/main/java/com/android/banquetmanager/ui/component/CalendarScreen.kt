@@ -1,7 +1,5 @@
 package com.android.banquetmanager.ui.component
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,7 +19,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
-import com.android.banquetmanager.ui.screen.Screen
 import com.android.banquetmanager.utils.BanquetLocations
 import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.SlotTime

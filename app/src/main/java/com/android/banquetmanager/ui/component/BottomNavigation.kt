@@ -14,16 +14,12 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.automirrored.outlined.TrendingUp
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.FilterAlt
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -49,9 +45,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.android.banquetmanager.ui.screen.AccountScreen
 import com.android.banquetmanager.ui.screen.AddEventBooking
 import com.android.banquetmanager.ui.screen.DateDetailsScreen
-import com.android.banquetmanager.ui.screen.Screen
+import com.android.banquetmanager.ui.screen.FilterScreen
 
 @Composable
 fun BottomNavigation(navAppController: NavController) {
@@ -73,8 +70,8 @@ fun BottomNavigation(navAppController: NavController) {
 
         BottomNavigationItem(
             title = "Account",
-            selectedIcon = Icons.Filled.Person,
-            unselectedItem = Icons.Outlined.Person,
+            selectedIcon = Icons.Filled.AccountCircle,
+            unselectedItem = Icons.Outlined.AccountCircle,
             hasNews = false
         )
     )
@@ -101,14 +98,15 @@ fun BottomNavigation(navAppController: NavController) {
             ) {
                 bottomItems.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        modifier = Modifier.align(Alignment.CenterVertically).height(20.dp),
+                        modifier = Modifier.align(Alignment.CenterVertically).height(25.dp),
                         selected = selectedItemIndex == index,
                         onClick = {
                             selectedItemIndex = index
                             navController.navigate(
                                 when (index) {
                                     0 -> Screen.CalendarScreen.route
-//                                    1 -> Screen.ActivityScreen.route
+                                    1 -> Screen.FilterScreen.route
+                                    2 -> Screen.AccountScreen.route
                                     else -> Screen.CalendarScreen.route
                                 }
                             )
@@ -154,6 +152,14 @@ fun BottomNavigation(navAppController: NavController) {
             ){
                 composable(route = Screen.CalendarScreen.route){
                     CalendarScreen(navController = navController)
+                }
+
+                composable(route = Screen.FilterScreen.route){
+                    FilterScreen(navController = navController)
+                }
+
+                composable(route = Screen.AccountScreen.route){
+                    AccountScreen(navController = navController)
                 }
 
                 composable(
