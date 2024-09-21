@@ -5,4 +5,10 @@ enum class PaymentMode(val displayName: String){
     CHEQUE("Cheque"),
     UPI("UPI"),
     NEFT("NEFT");
+
+    companion object {
+        fun fromName(name: String): PaymentMode? {
+            return PaymentMode.entries.find { it.name == name }
+        }
+    }
 }
