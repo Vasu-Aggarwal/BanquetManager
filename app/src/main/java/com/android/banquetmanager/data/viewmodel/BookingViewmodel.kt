@@ -26,4 +26,8 @@ class BookingViewmodel @Inject constructor(
     suspend fun getMonthlyBalancesByMonthYear(month: Int, year: Int): List<Event> {
         return bookingRepository.getMonthlyBalancesByMonthYear(month, year)
     }
+
+    suspend fun getEventsByMonthAndYear(month: Int, year: Int): List<Event> {
+        return bookingRepository.getEventsByMonthAndYear(month, year)
+    }
 }
