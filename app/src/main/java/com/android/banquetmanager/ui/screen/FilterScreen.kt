@@ -190,7 +190,7 @@ fun FilterScreen(
                         (!dinnerFilter || event.dinner) &&
                         (balanceFilter == null || event.balance == balanceFilter)
             }) { event ->
-                EventItem(event = event, navController = navController)
+                EventDetailsCard(event = event)
             }
         }
     }
@@ -378,26 +378,6 @@ fun FilterSection(
     }
 }
 
-
-@Composable
-fun EventItem(event: Event, navController: NavController) {
-    // UI for individual event
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable {
-                navController.navigate("EventDetail/${event.eventId}")
-            }
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Event ID: ${event.eventId}")
-            Text("Banquet Location: ${event.banquetLocation}")
-            // Add more event details here
-        }
-    }
-}
-
 @Composable
 fun CheckboxRow(
     label: String,
@@ -417,7 +397,6 @@ fun CheckboxRow(
         Text(text = label, fontSize = AppConstants.NORMAL_TEXT.sp)
     }
 }
-
 
 data class FilterItem(
     val label: String,
