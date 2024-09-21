@@ -1,5 +1,7 @@
 package com.android.banquetmanager.ui.component
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,13 +33,14 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
     var selectedDate by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var balanceEvents by remember { mutableStateOf<List<Event>>(emptyList()) }
     val scope = rememberCoroutineScope()
     val banquetLocations: List<String> = listOf("SK_EASTEND", "RAJWADA")
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
     // Main UI
-    LaunchedEffect(selectedDate) {
+    LaunchedEffect(selectedDate, currentMonth, currentYear) {
         if (selectedDate != null) {
             val date = "${String.format("%02d", selectedDate!!.first)}/${String.format("%02d", selectedDate!!.second)}/$currentYear"
             events = viewModel.getBookingsByDate(date)
@@ -47,6 +50,9 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
                 }
             }
         }
+        val fetchedEvents = viewModel.getMonthlyBalancesByMonthYear(currentMonth, currentYear)
+        // Update the state with the fetched events
+        balanceEvents = fetchedEvents
     }
 
     Column {
@@ -64,7 +70,8 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
                 showBottomSheet = false
             }
         )
-        BalancesView(navController, viewModel)
+
+        BalancesView(navController, viewModel, balanceEvents)
     }
 
     if (showBottomSheet) {
@@ -341,23 +348,29 @@ fun BottomSheetContent(
 }
 
 @Composable
-fun BalancesView(navController: NavController, viewModel: BookingViewmodel) {
-    // State to hold the list of events
-    var events by remember { mutableStateOf(listOf<Event>()) }
-
-    // Call the method to fetch the monthly balances
-    LaunchedEffect(Unit) {
-        val fetchedEvents = viewModel.getMonthlyBalancesByMonthYear(9, 2024)
-        // Update the state with the fetched events
-        events = fetchedEvents
-    }
+fun BalancesView(
+    navController: NavController,
+    viewModel: BookingViewmodel,
+    balanceEvents: List<Event>
+) {
+//    // State to hold the list of events
+//    var events by remember { mutableStateOf(listOf<Event>()) }
+//
+//    // Call the method to fetch the monthly balances
+//    LaunchedEffect(Unit) {
+//        val fetchedEvents = viewModel.getMonthlyBalancesByMonthYear(currentMonth, currentYear)
+//        // Update the state with the fetched events
+//        events = fetchedEvents
+//    }
 
     // Display a list of event balance cards
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(events) { event ->
+        items(balanceEvents) { event ->
             BalanceCard(event = event)
         }
     }
