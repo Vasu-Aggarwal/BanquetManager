@@ -1,7 +1,9 @@
 package com.android.banquetmanager.ui.screen
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.outlined.FilterAltOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -47,6 +50,8 @@ import com.android.banquetmanager.utils.BanquetLocations
 import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.FunctionType
 import com.android.banquetmanager.utils.Menu
+import com.android.banquetmanager.utils.Months
+import kotlin.math.exp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,9 +76,15 @@ fun FilterScreen(
     var isFilterVisible by remember { mutableStateOf(false) } // Control visibility of the filter section
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    var selectedMonth by remember { mutableStateOf(9) } // Default to September (9)
+    var selectedYear by remember { mutableStateOf(2024) } // Default to the year 2024
 
-    LaunchedEffect(Unit) {
-        val fetchedEvents = viewModel.getEventsByMonthAndYear(9, 2024)
+    // Available options for month and year
+    val months = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+    val years = (2020..2030).map { it.toString() } // Change range as per your needs
+
+    LaunchedEffect(selectedMonth, selectedYear) {
+        val fetchedEvents = viewModel.getEventsByMonthAndYear(selectedMonth, selectedYear)
         // Update the state with the fetched events
         events = fetchedEvents
     }
@@ -158,7 +169,11 @@ fun FilterScreen(
                     selectedMenuType = selectedMenu,
                     onMenuTypeSelected = { updatedMenu ->
                         selectedMenu = updatedMenu
-                    }
+                    },
+                    selectedMonth = selectedMonth.toString(),
+                    onMonthSelected = {monthName -> selectedMonth = months.indexOf(monthName) + 1},
+                    selectedYear = selectedYear.toString(),
+                    onYearSelected = { selectedYear = it.toInt() }
                 )
             }
 
@@ -213,7 +228,11 @@ fun FilterSection(
     dinnerFilter: Boolean,
     onDinnerFilterChanged: (Boolean) -> Unit,
     balanceFilter: Long?,
-    onBalanceFilterChanged: (Long?) -> Unit
+    onBalanceFilterChanged: (Long?) -> Unit,
+    selectedMonth: String,
+    onMonthSelected: (String) -> Unit,
+    selectedYear: String,
+    onYearSelected: (String) -> Unit
 ) {
 
     Column(Modifier.padding(16.dp)) {
@@ -225,6 +244,23 @@ fun FilterSection(
                 modifier = Modifier.height(500.dp)
             ) {
                 item {
+
+                    // Month Dropdown
+                    DropdownMenuField(
+                        label = "Select Month",
+                        options = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+                        selectedOption = selectedMonth,
+                        onOptionSelected = onMonthSelected
+                    )
+
+                    // Year Dropdown
+                    DropdownMenuField(
+                        label = "Select Year",
+                        options = (2020..2030).map { it.toString() }, // Generates a list of years from 2020 to 2030
+                        selectedOption = selectedYear,
+                        onOptionSelected = onYearSelected
+                    )
+
                     // Banquet Location Checkboxes (dynamically generated)
                     Text(text = "Banquet Locations:", fontSize = AppConstants.SUBHEADING_TEXT.sp)
                     LazyVerticalGrid(
@@ -390,6 +426,47 @@ fun CheckboxRow(
             onCheckedChange = onCheckedChange
         )
         Text(text = label, fontSize = AppConstants.NORMAL_TEXT.sp)
+    }
+}
+
+@Composable
+fun DropdownMenuField(
+    label: String,
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        Text(text = label)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true }
+                .padding(8.dp)
+                .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
+        ) {
+            Text(
+                text = selectedOption,
+                modifier = Modifier.padding(8.dp),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        androidx.compose.material3.DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                androidx.compose.material.DropdownMenuItem(onClick = {
+                    onOptionSelected(option)
+                    expanded = false
+                }) {
+                    Text(text = option)
+                }
+            }
+        }
     }
 }
 

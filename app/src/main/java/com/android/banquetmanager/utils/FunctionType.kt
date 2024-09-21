@@ -2,7 +2,9 @@ package com.android.banquetmanager.utils
 
 enum class FunctionType(val displayName: String) {
     WEDDING("Wedding"),
-    RING_CEREMONY("Ring Ceremony");
+    RING_CEREMONY("Ring Ceremony"),
+    BIRTHDAY("Birthday"),
+    GET_TOGETHER("Get Together");
 
     companion object {
         fun fromName(name: String): FunctionType? {

@@ -231,8 +231,8 @@ fun BottomSheetContent(
             val eventsForLocation = groupedEvents[banquetLocation.name] ?: emptyList()
 
             // Determine slot availability for lunch and dinner
-            val lunchEvent = eventsForLocation.firstOrNull { !it.lunch }
-            val dinnerEvent = eventsForLocation.firstOrNull { !it.dinner }
+            val lunchEvent = eventsForLocation.firstOrNull { it.lunch }
+            val dinnerEvent = eventsForLocation.firstOrNull { it.dinner }
 
             val isLunchBooked = lunchEvent != null
             val isDinnerBooked = dinnerEvent != null

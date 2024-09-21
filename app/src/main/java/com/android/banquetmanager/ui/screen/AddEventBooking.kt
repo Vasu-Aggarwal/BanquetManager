@@ -28,6 +28,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -91,13 +92,24 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
     var cocktailAmount by remember { mutableStateOf("") }
     var displayCocktailAmount by remember { mutableStateOf("") }
     var dj by remember { mutableStateOf(false) }
-    var extraPlate by remember { mutableStateOf("") }
     var flower by remember { mutableStateOf(false) }
     var flowerAmount by remember { mutableStateOf("") }
     var displayFlowerAmount by remember { mutableStateOf("") }
     var packageAmount by remember { mutableStateOf("") }
     var displayPackageAmount by remember { mutableStateOf("") }
     var pax by remember { mutableStateOf("") }
+    var guestName by remember { mutableStateOf("") }
+    var guestMobile by remember { mutableStateOf("") }
+    var guestEmail by remember { mutableStateOf("") }
+    var fruit by remember { mutableStateOf(false) }
+    var fruitAmount by remember { mutableStateOf("") }
+    var displayFruitAmount by remember { mutableStateOf("") }
+    var threeSixty by remember { mutableStateOf(false) }
+    var threeSixtyAmount by remember { mutableStateOf("") }
+    var displayThreeSixtyAmount by remember { mutableStateOf("") }
+    var extraEvent by remember { mutableStateOf(false) }
+    var extraEventAmount by remember { mutableStateOf("") }
+    var displayExtraEventAmount by remember { mutableStateOf("") }
 
     // Updated state for date picker
     val datePickerState = rememberDatePickerState()
@@ -166,171 +178,8 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             item {
-                //Dropdown for the banquet locations
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "Banquet Location: ")
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        DropdownMenu(
-                            list = BanquetLocations.entries,
-                            selectedItem = banquetLocation,
-                            onItemSelected = { banquetLocation = it },
-                            label = "",
-                            displayName = { it.displayName }
-                        )
-                    }
-                }
 
-                // Cocktail toggle and input
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = "Cocktail: ")
-                        }
-
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Switch(checked = cocktail, onCheckedChange = { cocktail = it })
-                        }
-                    }
-
-                    // Second Row: Display OutlinedTextField only if cocktail is true
-                    if (cocktail) {
-                        OutlinedTextField(
-                            value = displayCocktailAmount,
-                            onValueChange = {
-                                cocktailAmount = it.replace(",", "").replace("₹", "")
-                                // Convert the cleaned string to a number for validation
-                                val parsedAmount = cocktailAmount.toLongOrNull()
-
-                                // Only format if the input is a valid number
-                                if (parsedAmount != null) {
-                                    // Format the number with commas for display
-                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
-                                    displayCocktailAmount = numberFormat.format(parsedAmount) // Format for display
-                                } else {
-                                    displayCocktailAmount = it // If not a valid number, just show the input
-                                }
-                            },
-                            label = { Text(text = "Cocktail Amount") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-
-                // DJ toggle and input
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "DJ: ")
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
-                    }
-                }
-
-                // Extra Plates input
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "Extra Plates: ")
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = extraPlate,
-                            onValueChange = { extraPlate = it },
-                            label = {  },
-                            singleLine = true,
-                            maxLines = 1,
-                            shape = MaterialTheme.shapes.small,
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-                // Flower toggle and input
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = "Flowers: ")
-                        }
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
-                        }
-                    }
-
-                    if (flower) {
-                        OutlinedTextField(
-                            value = displayFlowerAmount,
-                            onValueChange = {
-                                flowerAmount = it.replace(",", "").replace("₹", "")
-                                // Convert the cleaned string to a number for validation
-                                val parsedAmount = flowerAmount.toLongOrNull()
-
-                                // Only format if the input is a valid number
-                                if (parsedAmount != null) {
-                                    // Format the number with commas for display
-                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
-                                    displayFlowerAmount = numberFormat.format(parsedAmount) // Format for display
-                                } else {
-                                    displayFlowerAmount = it // If not a valid number, just show the input
-                                }
-                            },
-                            label = { Text(text = "Flower Amount") },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            maxLines = 1,
-                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = MaterialTheme.shapes.small
-                        )
-                    }
-                }
-
-                // Function Type input
+                //1. Function Type input
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -351,6 +200,143 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                             label = "",
                             displayName = { it.displayName }
                         )
+                    }
+                }
+
+                // 2. Guest name input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Guest Name: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = guestName,
+                            onValueChange = {
+                                guestName = it
+                            },
+                            label = {  },
+                            singleLine = true,
+                            maxLines = 1,
+//                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+//                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    }
+                }
+
+                // 3. Guest mobile input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Guest Mobile: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = guestMobile,
+                            onValueChange = {
+                                guestMobile = it
+                            },
+                            label = {  },
+                            singleLine = true,
+                            maxLines = 1,
+//                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    }
+                }
+
+                // 4. Guest Email input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Guest Email: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = guestEmail,
+                            onValueChange = {
+                                guestEmail = it
+                            },
+                            label = {  },
+                            singleLine = true,
+                            maxLines = 1,
+//                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    }
+                }
+
+                // Lunch toggle
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Lunch: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = lunch, onCheckedChange = { lunch = it })
+//                        Switch(
+//                            enabled = false,
+//                            checked = lunch,
+//                            onCheckedChange = { lunch = it },
+//                            modifier = Modifier.padding(top = 8.dp)
+//                        )
+                    }
+                }
+
+                // Dinner toggle
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Dinner: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = dinner, onCheckedChange = { dinner = it })
+//                        Switch(
+//                            checked = dinner,
+//                            onCheckedChange = { dinner = it },
+//                            modifier = Modifier.padding(top = 8.dp)
+//                        )
                     }
                 }
 
@@ -402,6 +388,288 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                     }
                 }
 
+                // Pax input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Pax: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = pax,
+                            onValueChange = { pax = it },
+                            label = {  },
+                            singleLine = true,
+                            maxLines = 1,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    }
+                }
+
+                // Flower toggle and input
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Flowers: ")
+                        }
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(checked = flower, onCheckedChange = { flower = it })
+//                            Switch(checked = flower, onCheckedChange = { flower = it }, modifier = Modifier.padding(top = 8.dp))
+                        }
+                    }
+
+                    if (flower) {
+                        OutlinedTextField(
+                            value = displayFlowerAmount,
+                            onValueChange = {
+                                flowerAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = flowerAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayFlowerAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayFlowerAmount = it // If not a valid number, just show the input
+                                }
+                            },
+                            label = { Text(text = "Flower Amount") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            maxLines = 1,
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    }
+                }
+
+                // DJ toggle and input
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "DJ: ")
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = dj, onCheckedChange = { dj = it })
+//                        Switch(checked = dj, onCheckedChange = { dj = it }, modifier = Modifier.padding(top = 8.dp))
+                    }
+                }
+
+                // Cocktail toggle and input
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Cocktail: ")
+                        }
+
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(checked = cocktail, onCheckedChange = { cocktail = it })
+//                            Switch(checked = cocktail, onCheckedChange = { cocktail = it })
+                        }
+                    }
+
+                    // Second Row: Display OutlinedTextField only if cocktail is true
+                    if (cocktail) {
+                        OutlinedTextField(
+                            value = displayCocktailAmount,
+                            onValueChange = {
+                                cocktailAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = cocktailAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayCocktailAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayCocktailAmount = it // If not a valid number, just show the input
+                                }
+                            },
+                            label = { Text(text = "Cocktail Amount") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                //Fruit
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Fruit: ")
+                        }
+
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(checked = fruit, onCheckedChange = { fruit = it })
+//                            Switch(checked = cocktail, onCheckedChange = { cocktail = it })
+                        }
+                    }
+
+                    // Second Row: Display OutlinedTextField only if cocktail is true
+                    if (fruit) {
+                        OutlinedTextField(
+                            value = displayFruitAmount,
+                            onValueChange = {
+                                fruitAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = fruitAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayFruitAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayFruitAmount = it // If not a valid number, just show the input
+                                }
+                            },
+                            label = { Text(text = "Fruit Amount") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                //360
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "360 Camera: ")
+                        }
+
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(checked = threeSixty, onCheckedChange = { threeSixty = it })
+//                            Switch(checked = cocktail, onCheckedChange = { cocktail = it })
+                        }
+                    }
+
+                    // Second Row: Display OutlinedTextField only if cocktail is true
+                    if (threeSixty) {
+                        OutlinedTextField(
+                            value = displayThreeSixtyAmount,
+                            onValueChange = {
+                                threeSixtyAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = threeSixtyAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayThreeSixtyAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayThreeSixtyAmount = it // If not a valid number, just show the input
+                                }
+                            },
+                            label = { Text(text = "360 Amount") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                //Extra event
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Extra Event: ")
+                        }
+
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(checked = extraEvent, onCheckedChange = { extraEvent = it })
+//                            Switch(checked = cocktail, onCheckedChange = { cocktail = it })
+                        }
+                    }
+
+                    // Second Row: Display OutlinedTextField only if cocktail is true
+                    if (extraEvent) {
+                        OutlinedTextField(
+                            value = displayExtraEventAmount,
+                            onValueChange = {
+                                extraEventAmount = it.replace(",", "").replace("₹", "")
+                                // Convert the cleaned string to a number for validation
+                                val parsedAmount = extraEventAmount.toLongOrNull()
+
+                                // Only format if the input is a valid number
+                                if (parsedAmount != null) {
+                                    // Format the number with commas for display
+                                    val numberFormat = NumberFormat.getInstance(Locale("en", "IN"))
+                                    displayExtraEventAmount = numberFormat.format(parsedAmount) // Format for display
+                                } else {
+                                    displayExtraEventAmount = it // If not a valid number, just show the input
+                                }
+                            },
+                            label = { Text(text = "Extra event Amount") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            leadingIcon = { Icon(imageVector = Icons.Default.CurrencyRupee, contentDescription = "Rupee") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
                 // Package Amount input
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -443,33 +711,6 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                     }
                 }
 
-                // Pax input
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "Pax: ")
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = pax,
-                            onValueChange = { pax = it },
-                            label = {  },
-                            singleLine = true,
-                            maxLines = 1,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = MaterialTheme.shapes.small
-                        )
-                    }
-                }
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 10.dp)
@@ -478,7 +719,7 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                         modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Date Booked: ")
+                        Text(text = "Date to be Booked: ")
                     }
                     Row(
                         modifier = Modifier.weight(1f),
@@ -532,7 +773,7 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                     }
                 }
 
-                // Lunch toggle
+                //Dropdown for the banquet locations
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -540,38 +781,18 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                         modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Lunch: ")
+                        Text(text = "Banquet Location: ")
                     }
                     Row(
                         modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Switch(
-                            checked = lunch,
-                            onCheckedChange = { lunch = it },
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
-                }
-
-                // Dinner toggle
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "Dinner: ")
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Switch(
-                            checked = dinner,
-                            onCheckedChange = { dinner = it },
-                            modifier = Modifier.padding(top = 8.dp)
+                        DropdownMenu(
+                            list = BanquetLocations.entries,
+                            selectedItem = banquetLocation,
+                            onItemSelected = { banquetLocation = it },
+                            label = "",
+                            displayName = { it.displayName }
                         )
                     }
                 }
@@ -617,7 +838,7 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                                 cocktail = cocktail,
                                 cocktailAmount = cocktailAmount.toDoubleOrNull() ?: 0.0,
                                 dj = dj,
-                                extraPlate = extraPlate.toLongOrNull() ?: 0,
+//                                extraPlate = extraPlate.toLongOrNull() ?: 0,
                                 flower = flower,
                                 flowerAmount = flowerAmount.toDoubleOrNull() ?: 0.0,
                                 foodType = foodType.name,
