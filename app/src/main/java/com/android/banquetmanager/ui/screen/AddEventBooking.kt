@@ -40,7 +40,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -61,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
@@ -111,6 +109,8 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
     var extraEvent by remember { mutableStateOf(false) }
     var extraEventAmount by remember { mutableStateOf("") }
     var displayExtraEventAmount by remember { mutableStateOf("") }
+    var month by remember { mutableStateOf(0L) }
+    var year by remember { mutableStateOf(0L) }
 
     // Updated state for date picker
     val datePickerState = rememberDatePickerState()
@@ -124,16 +124,35 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
     val selectedTimestamp = datePickerState.selectedDateMillis?.let {
         Timestamp(Date(it)) // Firestore Timestamp from milliseconds
     }
+    val context = LocalContext.current
+
+    selectedTimestamp?.let { timestamp ->
+        val newDate = timestamp.toDate() // Convert Timestamp to Date
+
+        // Create a Calendar instance and set it to the date
+        val calendar = Calendar.getInstance()
+        calendar.time = newDate
+
+        // Extract the month and year
+        val tempmonth = calendar.get(Calendar.MONTH) + 1 // Months are 0-based in Calendar (0 = January)
+        val tempyear = calendar.get(Calendar.YEAR) // This should give the correct year
+
+        month = tempmonth.toLong()
+        year = tempyear.toLong()
+    }
 
     var lunch by remember { mutableStateOf(slot == SlotTime.LUNCH.name) }
     var dinner by remember { mutableStateOf(slot == SlotTime.DINNER.name) }
     // State for dynamic payment details
     var paymentDetails by remember { mutableStateOf(listOf<Payment>()) }
-    val context = LocalContext.current
+
     // Add vertical scroll
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
+    if (selectedTimestamp != null) {
+
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -850,7 +869,9 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                                 dateBooked = dateBooked,
                                 lunch = lunch,
                                 dinner = dinner,
-                                status = Status.BOOKED.value.toLong()
+                                status = Status.BOOKED.value.toLong(),
+                                month = month,
+                                year = year
                             ),
                             paymentDetails
                         )
