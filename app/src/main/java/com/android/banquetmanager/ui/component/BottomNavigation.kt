@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.BottomNavigation
@@ -100,7 +101,7 @@ fun BottomNavigation(navAppController: NavController) {
             ) {
                 bottomItems.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        modifier = Modifier.align(Alignment.CenterVertically),
+                        modifier = Modifier.align(Alignment.CenterVertically).height(20.dp),
                         selected = selectedItemIndex == index,
                         onClick = {
                             selectedItemIndex = index
