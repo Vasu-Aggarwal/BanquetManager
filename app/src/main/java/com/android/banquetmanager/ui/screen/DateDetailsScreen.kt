@@ -101,8 +101,6 @@ fun EventDetailsCard(event: Event) {
             EventDetailRow(label = "Created On", value = event.createdOn.toDate().toLocaleString())
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            // Add more details if needed
         }
     }
 }

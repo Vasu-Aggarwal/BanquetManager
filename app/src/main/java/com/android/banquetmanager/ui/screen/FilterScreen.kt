@@ -192,6 +192,10 @@ fun FilterScreen(
             }) { event ->
                 EventDetailsCard(event = event)
             }
+
+            item {
+                Spacer(modifier = Modifier.height(80.dp)) // Height to prevent overlap with FAB
+            }
         }
     }
 }
