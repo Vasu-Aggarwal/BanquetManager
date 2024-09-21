@@ -2,6 +2,7 @@ package com.android.banquetmanager.ui.component
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -177,36 +179,88 @@ fun MonthView(
                         val isToday =
                             dayToDisplay == todayDay && currentMonth == todayMonth && currentYear == todayYear
 
-                        Column(
+                        Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(8.dp)
-                                .height(50.dp)
+                                .height(30.dp)
                                 .clickable {
                                     selectedDay = dayToDisplay
                                     onDateSelected(dayToDisplay, currentMonth, currentYear)
                                 },
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            contentAlignment = Alignment.Center // Align content centrally in the Box
                         ) {
+                            // Draw a circle around the date if it's today
+                            if (isToday) {
+                                Canvas(modifier = Modifier.size(40.dp)) {
+                                    drawCircle(
+                                        color = Color.Red,
+                                        style = Stroke(width = 1.dp.toPx()) // Stroke width for the circle outline
+                                    )
+                                }
+                            }
+
+                            // Display the day inside the box
                             Text(
                                 text = dayToDisplay.toString(),
                                 textAlign = TextAlign.Center
                             )
-
-                            if (isToday) {
-                                Text(
-                                    text = "•",
-                                    textAlign = TextAlign.Center,
-                                    color = Color.Red,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
                         }
                         day++
                     }
                 }
             }
         }
+
+
+//        var day = 1
+//        for (row in 0 until 6) {
+//            Row {
+//                for (col in 0 until 7) {
+//                    val isEmpty = row == 0 && col < (firstDayOfMonth - 1) || day > daysInMonth
+//                    if (isEmpty) {
+//                        Text(
+//                            text = "",
+//                            modifier = Modifier
+//                                .weight(1f)
+//                                .padding(8.dp),
+//                            textAlign = TextAlign.Center
+//                        )
+//                    } else {
+//                        val dayToDisplay = day
+//                        val isToday =
+//                            dayToDisplay == todayDay && currentMonth == todayMonth && currentYear == todayYear
+//
+//                        Column(
+//                            modifier = Modifier
+//                                .weight(1f)
+//                                .padding(8.dp)
+//                                .height(30.dp)
+//                                .clickable {
+//                                    selectedDay = dayToDisplay
+//                                    onDateSelected(dayToDisplay, currentMonth, currentYear)
+//                                },
+//                            horizontalAlignment = Alignment.CenterHorizontally
+//                        ) {
+//                            Text(
+//                                text = dayToDisplay.toString(),
+//                                textAlign = TextAlign.Center
+//                            )
+//
+//                            if (isToday) {
+//                                Text(
+//                                    text = "•",
+//                                    textAlign = TextAlign.Center,
+//                                    color = Color.Red,
+//                                    modifier = Modifier.padding(top = 4.dp)
+//                                )
+//                            }
+//                        }
+//                        day++
+//                    }
+//                }
+//            }
+//        }
     }
 }
 
