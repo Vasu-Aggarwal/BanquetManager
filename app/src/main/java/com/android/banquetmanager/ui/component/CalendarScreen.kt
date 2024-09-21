@@ -211,56 +211,6 @@ fun MonthView(
                 }
             }
         }
-
-
-//        var day = 1
-//        for (row in 0 until 6) {
-//            Row {
-//                for (col in 0 until 7) {
-//                    val isEmpty = row == 0 && col < (firstDayOfMonth - 1) || day > daysInMonth
-//                    if (isEmpty) {
-//                        Text(
-//                            text = "",
-//                            modifier = Modifier
-//                                .weight(1f)
-//                                .padding(8.dp),
-//                            textAlign = TextAlign.Center
-//                        )
-//                    } else {
-//                        val dayToDisplay = day
-//                        val isToday =
-//                            dayToDisplay == todayDay && currentMonth == todayMonth && currentYear == todayYear
-//
-//                        Column(
-//                            modifier = Modifier
-//                                .weight(1f)
-//                                .padding(8.dp)
-//                                .height(30.dp)
-//                                .clickable {
-//                                    selectedDay = dayToDisplay
-//                                    onDateSelected(dayToDisplay, currentMonth, currentYear)
-//                                },
-//                            horizontalAlignment = Alignment.CenterHorizontally
-//                        ) {
-//                            Text(
-//                                text = dayToDisplay.toString(),
-//                                textAlign = TextAlign.Center
-//                            )
-//
-//                            if (isToday) {
-//                                Text(
-//                                    text = "•",
-//                                    textAlign = TextAlign.Center,
-//                                    color = Color.Red,
-//                                    modifier = Modifier.padding(top = 4.dp)
-//                                )
-//                            }
-//                        }
-//                        day++
-//                    }
-//                }
-//            }
-//        }
     }
 }
 
