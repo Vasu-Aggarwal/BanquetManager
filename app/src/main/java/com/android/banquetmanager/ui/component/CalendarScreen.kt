@@ -1,6 +1,7 @@
 package com.android.banquetmanager.ui.component
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.android.banquetmanager.R
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.utils.BanquetLocations
@@ -289,11 +292,15 @@ fun BottomSheetContent(
                             // Display food type if lunch is booked
                             if (isLunchBooked) {
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "(${lunchEvent?.foodType?.capitalize()})", // Show Veg/Non-Veg
-                                    color = if (lunchEvent?.foodType == FoodType.VEG.name) Color.Green else Color.Red,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                if (lunchEvent?.foodType == FoodType.VEG.name)
+                                    Image(painter = painterResource(id = R.drawable.vegetarian), contentDescription = "")
+                                else
+                                    Image(painter = painterResource(id = R.drawable.non_vegetarian), contentDescription = "")
+//                                Text(
+//                                    text = "(${lunchEvent?.foodType?.capitalize()})", // Show Veg/Non-Veg
+//                                    color = if (lunchEvent?.foodType == FoodType.VEG.name) Color.Green else Color.Red,
+//                                    style = MaterialTheme.typography.bodySmall
+//                                )
                             }
                         }
                     }
@@ -333,11 +340,15 @@ fun BottomSheetContent(
                             // Display food type if dinner is booked
                             if (isDinnerBooked) {
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "(${dinnerEvent?.foodType?.capitalize()})", // Show Veg/Non-Veg
-                                    color = if (dinnerEvent?.foodType == FoodType.VEG.name) Color.Green else Color.Red,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                if (dinnerEvent?.foodType == FoodType.VEG.name)
+                                    Image(painter = painterResource(id = R.drawable.vegetarian), contentDescription = "")
+                                else
+                                    Image(painter = painterResource(id = R.drawable.non_vegetarian), contentDescription = "")
+//                                Text(
+//                                    text = "(${dinnerEvent?.foodType?.capitalize()})", // Show Veg/Non-Veg
+//                                    color = if (dinnerEvent?.foodType == FoodType.VEG.name) Color.Green else Color.Red,
+//                                    style = MaterialTheme.typography.bodySmall
+//                                )
                             }
                         }
                     }

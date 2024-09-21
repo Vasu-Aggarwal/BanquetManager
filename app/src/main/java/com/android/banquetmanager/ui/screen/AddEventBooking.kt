@@ -71,6 +71,7 @@ import com.android.banquetmanager.utils.FunctionType
 import com.android.banquetmanager.utils.Menu
 import com.android.banquetmanager.utils.PaymentMode
 import com.android.banquetmanager.utils.SlotTime
+import com.android.banquetmanager.utils.Status
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -848,7 +849,8 @@ fun AddEventBooking(date: String, slot: String, navController: NavController, bo
                                 pax = pax.toLongOrNull() ?: 0,
                                 dateBooked = dateBooked,
                                 lunch = lunch,
-                                dinner = dinner
+                                dinner = dinner,
+                                status = Status.BOOKED.value.toLong()
                             ),
                             paymentDetails
                         )
