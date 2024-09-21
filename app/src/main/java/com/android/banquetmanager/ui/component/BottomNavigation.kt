@@ -143,6 +143,7 @@ fun BottomNavigation(navAppController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(5.dp)
         ) {
             NavHost(
                 navController = navController,
