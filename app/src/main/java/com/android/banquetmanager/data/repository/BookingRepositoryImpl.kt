@@ -4,6 +4,7 @@ import android.util.Log
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.model.Payment
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
@@ -140,4 +141,24 @@ class BookingRepositoryImpl @Inject constructor(private val firebaseFirestore: F
         }
     }
 
+    override suspend fun getPaymentDetailsByEvent(paymentIds: List<String>): List<Payment> {
+        return try {
+            // Check if paymentIds list is not empty to avoid unnecessary query
+            if (paymentIds.isEmpty()) return emptyList()
+
+            // Query the 'payment' collection where 'paymentId' is in the given list of paymentIds
+            val snapshot = firebaseFirestore.collection("payment")
+                .whereIn(FieldPath.documentId(), paymentIds)
+                .get()
+                .await()
+
+            // Map the results to a list of Payment objects
+            snapshot.documents.mapNotNull { document ->
+                document.toObject(Payment::class.java)
+            }
+        } catch (e: Exception) {
+            // Handle the exception (e.g., log it, show a message, etc.)
+            emptyList() // Return an empty list in case of an error
+        }
+    }
 }

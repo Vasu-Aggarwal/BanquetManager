@@ -1,45 +1,28 @@
 package com.android.banquetmanager.ui.screen
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.FilterAltOff
-import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.FilterAltOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -57,9 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.android.banquetmanager.data.model.Event
-import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.utils.AppConstants
 import com.android.banquetmanager.utils.BanquetLocations
@@ -84,6 +65,7 @@ fun FilterScreen(
     var lunchFilter by remember { mutableStateOf(false) }
     var dinnerFilter by remember { mutableStateOf(false) }
     var balanceFilter by remember { mutableStateOf<Long?>(null) }
+    var showPaymentDetails by remember { mutableStateOf(false) }
 
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     var isFilterVisible by remember { mutableStateOf(false) } // Control visibility of the filter section
@@ -147,6 +129,8 @@ fun FilterScreen(
             item {
                 FilterSection(
                     isFilterVisible,
+                    showPaymentDetails,
+                    onShowPaymentDetailsChanged = { showPaymentDetails = it },
                     selectedBanquetLocations = selectedBanquetLocations,
                     onBanquetLocationSelected = { updatedLocations ->
                         selectedBanquetLocations = updatedLocations
@@ -190,7 +174,11 @@ fun FilterScreen(
                         (!dinnerFilter || event.dinner) &&
                         (balanceFilter == null || event.balance == balanceFilter)
             }) { event ->
-                EventDetailsCard(event = event)
+                EventDetailsCard(
+                    event = event,
+                    bookingViewmodel = viewModel,
+                    showPaymentDetails = showPaymentDetails
+                )
             }
 
             item {
@@ -204,6 +192,8 @@ fun FilterScreen(
 @Composable
 fun FilterSection(
     isFilterVisible: Boolean,
+    showPaymentDetails: Boolean,
+    onShowPaymentDetailsChanged: (Boolean) -> Unit,
     selectedBanquetLocations: List<String>,
     onBanquetLocationSelected: (List<String>) -> Unit,
     selectedFoodType: List<String>,
@@ -358,7 +348,8 @@ fun FilterSection(
                         FilterItem("Flower", flowerFilter, onFlowerFilterChanged),
                         FilterItem("DJ", djFilter, onDjFilterChanged),
                         FilterItem("Lunch", lunchFilter, onLunchFilterChanged),
-                        FilterItem("Dinner", dinnerFilter, onDinnerFilterChanged)
+                        FilterItem("Dinner", dinnerFilter, onDinnerFilterChanged),
+                        FilterItem("Payment Details", showPaymentDetails, onShowPaymentDetailsChanged)
                     )
 
                     LazyVerticalGrid(

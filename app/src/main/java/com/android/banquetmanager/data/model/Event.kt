@@ -22,5 +22,8 @@ data class Event(
     val dateBooked: String = "",
     val lunch: Boolean = false,
     val dinner: Boolean = false,
-    val balance: Long = 0
+    val balance: Long = 0,
+    val month: Long = 0,
+    val year: Long = 0,
+    val paymentDetail: List<String> = emptyList()
 )

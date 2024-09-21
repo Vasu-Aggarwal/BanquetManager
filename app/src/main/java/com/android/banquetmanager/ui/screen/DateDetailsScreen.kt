@@ -7,8 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -24,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.banquetmanager.R
 import com.android.banquetmanager.data.model.Event
+import com.android.banquetmanager.data.model.Payment
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
 import com.android.banquetmanager.utils.AppConstants
 import com.android.banquetmanager.utils.BanquetLocations
@@ -37,6 +36,9 @@ fun DateDetailsScreen(
     bookingViewmodel: BookingViewmodel = hiltViewModel()
 ) {
     var event by remember { mutableStateOf<Event?>(null) }
+    val showPaymentDetails by remember {
+        mutableStateOf(true)
+    }
 
     LaunchedEffect(eventId) {
         event = bookingViewmodel.getBookingByEventId(eventId)
@@ -44,7 +46,7 @@ fun DateDetailsScreen(
 
     // Display the first event if it exists
     event?.let {
-        EventDetailsCard(event = it)
+        EventDetailsCard(event = it, bookingViewmodel, showPaymentDetails)
     } ?: run {
         // Show if no events are found for the selected date
         Text(
@@ -57,7 +59,12 @@ fun DateDetailsScreen(
 }
 
 @Composable
-fun EventDetailsCard(event: Event) {
+fun EventDetailsCard(event: Event, bookingViewmodel: BookingViewmodel, showPaymentDetails: Boolean) {
+
+    var paymentDetails by remember {
+        mutableStateOf(emptyList<Payment>())
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,6 +98,44 @@ fun EventDetailsCard(event: Event) {
             EventDetailRow(label = "DJ", value = if (event.dj) "Yes" else "No")
             EventDetailRow(label = "Flower Decoration", value = if (event.flower) "Yes" else "No")
 
+            //Payment details and extra plates
+            Spacer(modifier = Modifier.height(8.dp))
+
+            HorizontalDivider()
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            //Show the payment details only when showPaymentdetails flag is true (the flag is controlled on the filters page)
+            if (showPaymentDetails) {
+                //If extra plates are added then only show otherwise hide
+                if (event.extraPlate != 0L)
+                    EventDetailRow(label = "Extra Plates", value = event.extraPlate.toString())
+
+                //All the payments received
+                if (event.paymentDetail.isNotEmpty()) {
+                    LaunchedEffect(Unit) {
+                        paymentDetails =
+                            bookingViewmodel.getPaymentDetailsByEvent(event.paymentDetail)
+                    }
+
+                    paymentDetails.forEachIndexed { i, payment ->
+                        EventDetailRow(label = "Payment ${i + 1}", value = "")
+                        EventDetailRow(label = "Description", value = payment.paymentDescription)
+                        EventDetailRow(
+                            label = "Amount",
+                            value = UtilityMethods.formatAmount(payment.amount)
+                        )
+                        EventDetailRow(label = "Mode", value = payment.paymentMode)
+                    }
+
+                }
+            }
+
+            EventDetailRow(label = "Balance", value = UtilityMethods.formatAmount(event.balance.toDouble()))
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            //Booking added date
             Spacer(modifier = Modifier.height(8.dp))
 
             HorizontalDivider()

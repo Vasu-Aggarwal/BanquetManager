@@ -30,4 +30,8 @@ class BookingViewmodel @Inject constructor(
     suspend fun getEventsByMonthAndYear(month: Int, year: Int): List<Event> {
         return bookingRepository.getEventsByMonthAndYear(month, year)
     }
+
+    suspend fun getPaymentDetailsByEvent(paymentIds: List<String>): List<Payment> {
+        return bookingRepository.getPaymentDetailsByEvent(paymentIds)
+    }
 }
