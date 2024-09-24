@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.outlined.FilterAltOff
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -39,6 +41,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,6 +75,9 @@ fun FilterScreen(
     var dinnerFilter by remember { mutableStateOf(false) }
     var balanceFilter by remember { mutableStateOf<Long?>(null) }
     var showPaymentDetails by remember { mutableStateOf(false) }
+    var fruitFilter by remember { mutableStateOf(false) }
+    var threeSixtyFilter by remember { mutableStateOf(false) }
+    var extraEventFilter by remember { mutableStateOf(false) }
 
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     var isFilterVisible by remember { mutableStateOf(false) } // Control visibility of the filter section
@@ -170,7 +177,13 @@ fun FilterScreen(
                     onMenuTypeSelected = { updatedMenu ->
                         selectedMenu = updatedMenu
                     },
-                    selectedMonth = selectedMonth.toString(),
+                    fruitFilter = fruitFilter,
+                    onFruitFilterSelected = { fruitFilter = it },
+                    threeSixtyFilter = threeSixtyFilter,
+                    onThreeSixtyFilterSelected = { threeSixtyFilter = it },
+                    extraEventFilter = extraEventFilter,
+                    onExtraEventFilterSelected = { extraEventFilter = it },
+                    selectedMonth = months[selectedMonth-1],
                     onMonthSelected = {monthName -> selectedMonth = months.indexOf(monthName) + 1},
                     selectedYear = selectedYear.toString(),
                     onYearSelected = { selectedYear = it.toInt() }
@@ -187,7 +200,10 @@ fun FilterScreen(
                         (selectedMenu.isEmpty() || selectedMenu.contains(event.menu)) &&
                         (!lunchFilter || event.lunch) &&
                         (!dinnerFilter || event.dinner) &&
-                        (balanceFilter == null || event.balance == balanceFilter)
+                        (balanceFilter == null || event.balance == balanceFilter) &&
+                        (!fruitFilter || event.fruit) &&
+                        (!threeSixtyFilter || event.threeSixty) &&
+                        (!extraEventFilter || event.extraEvents)
             }) { event ->
                 EventDetailsCard(
                     event = event,
@@ -232,7 +248,13 @@ fun FilterSection(
     selectedMonth: String,
     onMonthSelected: (String) -> Unit,
     selectedYear: String,
-    onYearSelected: (String) -> Unit
+    onYearSelected: (String) -> Unit,
+    fruitFilter : Boolean,
+    onFruitFilterSelected : (Boolean) -> Unit,
+    threeSixtyFilter : Boolean,
+    onThreeSixtyFilterSelected : (Boolean) -> Unit,
+    extraEventFilter : Boolean,
+    onExtraEventFilterSelected : (Boolean) -> Unit,
 ) {
 
     Column(Modifier.padding(16.dp)) {
@@ -262,7 +284,7 @@ fun FilterSection(
                     )
 
                     // Banquet Location Checkboxes (dynamically generated)
-                    Text(text = "Banquet Locations:", fontSize = AppConstants.SUBHEADING_TEXT.sp)
+                    Text(text = "Banquet Locations:", fontSize = AppConstants.SUBHEADING_TEXT.sp, fontWeight = FontWeight.W500)
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 100.dp), // Adjust cell size as needed
                         contentPadding = PaddingValues(5.dp),
@@ -291,7 +313,7 @@ fun FilterSection(
 
                 item {
                     // Food Type Checkboxes (dynamically generated)
-                    Text(text = "Food Type:", fontSize = AppConstants.SUBHEADING_TEXT.sp)
+                    Text(text = "Food Type:", fontSize = AppConstants.SUBHEADING_TEXT.sp, fontWeight = FontWeight.W500)
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 100.dp), // Adjust cell size as needed
                         contentPadding = PaddingValues(5.dp),
@@ -320,13 +342,13 @@ fun FilterSection(
 
                 item {
                     // Function Type Checkboxes (dynamically generated)
-                    Text(text = "Function Type:", fontSize = AppConstants.SUBHEADING_TEXT.sp)
+                    Text(text = "Function Type:", fontSize = AppConstants.SUBHEADING_TEXT.sp, fontWeight = FontWeight.W500)
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 100.dp), // Adjust cell size as needed
+                        columns = GridCells.Adaptive(minSize = 120.dp), // Adjust cell size as needed
                         contentPadding = PaddingValues(5.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(60.dp),
+                            .height(110.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(FunctionType.entries.toList()) { type ->
@@ -349,13 +371,13 @@ fun FilterSection(
 
                 item {
                     // Menu Type Checkboxes displayed in a LazyVerticalGrid
-                    Text(text = "Menu Type:", fontSize = AppConstants.SUBHEADING_TEXT.sp)
+                    Text(text = "Menu Type:", fontSize = AppConstants.SUBHEADING_TEXT.sp, fontWeight = FontWeight.W500)
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 100.dp), // Adjust cell size as needed
                         contentPadding = PaddingValues(5.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(60.dp),
+                            .height(160.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(Menu.entries.toList()) { type ->
@@ -377,7 +399,7 @@ fun FilterSection(
                 }
 
                 item {
-                    Text(text = "Other:", fontSize = AppConstants.SUBHEADING_TEXT.sp)
+                    Text(text = "Other:", fontSize = AppConstants.SUBHEADING_TEXT.sp, fontWeight = FontWeight.W500)
                     // List of filter items
                     val filters = listOf(
                         FilterItem("Cocktail", cocktailFilter, onCocktailFilterChanged),
@@ -385,13 +407,16 @@ fun FilterSection(
                         FilterItem("DJ", djFilter, onDjFilterChanged),
                         FilterItem("Lunch", lunchFilter, onLunchFilterChanged),
                         FilterItem("Dinner", dinnerFilter, onDinnerFilterChanged),
-                        FilterItem("Payment Details", showPaymentDetails, onShowPaymentDetailsChanged)
+                        FilterItem("Payment Details", showPaymentDetails, onShowPaymentDetailsChanged),
+                        FilterItem("Fruit", fruitFilter, onFruitFilterSelected),
+                        FilterItem("360", threeSixtyFilter, onThreeSixtyFilterSelected),
+                        FilterItem("Extra Events", extraEventFilter, onExtraEventFilterSelected)
                     )
 
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 120.dp), // Adjust cell size as needed
                         contentPadding = PaddingValues(5.dp),
-                        modifier = Modifier.height(150.dp),
+                        modifier = Modifier.height(250.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(filters) { filter ->
@@ -439,7 +464,7 @@ fun DropdownMenuField(
     var expanded by remember { mutableStateOf(false) }
 
     Column {
-        Text(text = label)
+        Text(text = label, fontSize = AppConstants.SUBHEADING_TEXT.sp, fontWeight = FontWeight.W500)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -447,11 +472,21 @@ fun DropdownMenuField(
                 .padding(8.dp)
                 .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
         ) {
-            Text(
-                text = selectedOption,
-                modifier = Modifier.padding(8.dp),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Text(
+                    text = selectedOption,
+                    modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (!expanded)
+                    Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "")
+                else
+                    Icon(imageVector = Icons.Default.ArrowDropUp, contentDescription = "")
+            }
         }
 
         androidx.compose.material3.DropdownMenu(
