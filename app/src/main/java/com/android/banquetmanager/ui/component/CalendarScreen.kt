@@ -1,11 +1,14 @@
 package com.android.banquetmanager.ui.component
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +25,8 @@ import androidx.navigation.NavController
 import com.android.banquetmanager.R
 import com.android.banquetmanager.data.model.Event
 import com.android.banquetmanager.data.viewmodel.BookingViewmodel
+import com.android.banquetmanager.ui.theme.Amber
+import com.android.banquetmanager.ui.theme.Orange
 import com.android.banquetmanager.utils.BanquetLocations
 import com.android.banquetmanager.utils.FoodType
 import com.android.banquetmanager.utils.SlotTime
@@ -70,7 +75,8 @@ fun CalendarScreen(navController: NavController, viewModel: BookingViewmodel = h
                 currentYear = newYear
                 selectedDate = null
                 showBottomSheet = false
-            }
+            },
+            viewModel
         )
 
         BalancesView(navController, balanceEvents)
@@ -103,7 +109,8 @@ fun MonthView(
     currentYear: Int,
     currentMonth: Int,
     onDateSelected: (Int, Int, Int) -> Unit,
-    onMonthChanged: (Int, Int) -> Unit
+    onMonthChanged: (Int, Int) -> Unit,
+    viewModel: BookingViewmodel
 ) {
     var selectedDay by remember { mutableStateOf<Int?>(null) }
     val daysInMonth = remember { getDaysInMonth(currentMonth, currentYear) }
@@ -120,6 +127,19 @@ fun MonthView(
         "July", "August", "September", "October", "November", "December"
     )
     val context = LocalContext.current
+    var bookingsByDate by remember {
+        mutableStateOf<List<Event>>(emptyList())
+    }
+
+    // Fetch the bookings from the ViewModel (replace this with your actual method call)
+    LaunchedEffect(currentMonth, currentYear) {
+        bookingsByDate = viewModel.getEventsByMonthAndYear(currentMonth, currentYear)
+    }
+
+    // Calculate a map of date to event count
+    val eventCountByDate = remember(bookingsByDate) {
+        bookingsByDate.groupingBy { it.dateBooked }.eachCount()
+    }
 
     Column(
         modifier = Modifier
@@ -179,11 +199,23 @@ fun MonthView(
                         val isToday =
                             dayToDisplay == todayDay && currentMonth == todayMonth && currentYear == todayYear
 
+                        // Fetch event count for the day, default to 0 if not present
+                        val completeDate = "${String.format("%02d", day)}/${String.format("%02d", currentMonth)}/$currentYear"
+                        val eventCount = eventCountByDate[completeDate] ?: 0
+
+                        // Set color based on the event count
+                        val backgroundColor = when (eventCount) {
+                            0 -> Color.Transparent // No events
+                            in 1..3 -> Orange // Few events
+                            else -> Color.Red // Many events
+                        }
+
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(8.dp)
                                 .height(30.dp)
+                                .background(backgroundColor, shape = CircleShape)
                                 .clickable {
                                     selectedDay = dayToDisplay
                                     onDateSelected(dayToDisplay, currentMonth, currentYear)
