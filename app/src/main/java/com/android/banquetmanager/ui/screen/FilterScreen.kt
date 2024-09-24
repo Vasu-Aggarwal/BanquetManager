@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -88,7 +89,6 @@ fun FilterScreen(
 
     // Available options for month and year
     val months = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
-    val years = (2020..2030).map { it.toString() } // Change range as per your needs
 
     LaunchedEffect(selectedMonth, selectedYear) {
         val fetchedEvents = viewModel.getEventsByMonthAndYear(selectedMonth, selectedYear)
@@ -278,7 +278,7 @@ fun FilterSection(
                     // Year Dropdown
                     DropdownMenuField(
                         label = "Select Year",
-                        options = (2020..2030).map { it.toString() }, // Generates a list of years from 2020 to 2030
+                        options = (2024..2034).map { it.toString() }, // Generates a list of years from 2020 to 2030
                         selectedOption = selectedYear,
                         onOptionSelected = onYearSelected
                     )
