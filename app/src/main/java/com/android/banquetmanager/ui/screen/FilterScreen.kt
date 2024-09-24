@@ -473,7 +473,7 @@ fun DropdownMenuField(
                 .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(5.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
