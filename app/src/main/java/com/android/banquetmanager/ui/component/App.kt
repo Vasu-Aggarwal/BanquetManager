@@ -1,16 +1,22 @@
 package com.android.banquetmanager.ui.component
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.android.banquetmanager.ui.screen.LoginScreen
 
 @Composable
-fun App(){
+fun App() {
 
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.BottomNavigationBar.route) {
+    NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
+        composable(route = Screen.LoginScreen.route) {
+            LoginScreen(navAppController = navController)
+        }
+
         composable(route = Screen.BottomNavigationBar.route) {
             BottomNavigation(navAppController = navController)
         }
@@ -20,6 +26,7 @@ fun App(){
 sealed class Screen(val route: String){
 
     data object BottomNavigationBar: Screen("bottomBar")
+    data object LoginScreen: Screen("loginScreen")
 
     data object DateDetailsScreen: Screen("dateDetailsScreen/{eventId}"){
         fun createRoute(eventId: String) = "dateDetailsScreen/$eventId"
