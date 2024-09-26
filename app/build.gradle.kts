@@ -122,5 +122,5 @@ dependencies {
     //biometric login
     implementation ("androidx.biometric:biometric:1.2.0-alpha04")
 
-
+    implementation ("androidx.security:security-crypto:1.1.0-alpha04")
 }

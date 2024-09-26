@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import com.android.banquetmanager.ui.component.Screen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -93,22 +94,22 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
 //         Biometric login button (only show if biometric option is available)
-        if (showBiometricOption) {
-            Button(
-                enabled = showBiometricOption,
-                onClick = {
-                    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
-                    showBiometricPrompt(context, onAuthenticated = {
-                        Toast.makeText(context, "Biometric authentication successful!", Toast.LENGTH_SHORT).show()
-                    }, onError = { error ->
-                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                    })
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Login with Biometrics")
-            }
-        }
+//        if (showBiometricOption) {
+//            Button(
+//                enabled = showBiometricOption,
+//                onClick = {
+//                    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+//                    showBiometricPrompt(context, onAuthenticated = {
+//                        Toast.makeText(context, "Biometric authentication successful!", Toast.LENGTH_SHORT).show()
+//                    }, onError = { error ->
+//                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+//                    })
+//                },
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Text("Login with Biometrics")
+//            }
+//        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -122,6 +123,7 @@ fun LoginScreen(
                         isLoading = false
                         Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
                         // Navigate to the next screen
+                        navAppController.navigate(Screen.BottomNavigationBar.route)
                     },
                     onLoginFailure = { error ->
                         isLoading = false
