@@ -123,7 +123,7 @@ fun LoginScreen(
                         isLoading = false
                         Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
                         // Navigate to the next screen
-                        navAppController.navigate(Screen.BottomNavigationBar.route)
+                        navAppController.navigate(Screen.PinSetupScreen.route)
                     },
                     onLoginFailure = { error ->
                         isLoading = false

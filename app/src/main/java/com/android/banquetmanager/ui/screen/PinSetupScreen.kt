@@ -3,6 +3,7 @@ package com.android.banquetmanager.ui.screen
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,8 +31,8 @@ import androidx.security.crypto.MasterKeys
 
 @Composable
 fun PinSetupScreen(onPinSet: (String) -> Unit) {
-    var pin by remember { mutableStateOf("") }
     val context = LocalContext.current
+    var pin by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -43,14 +45,35 @@ fun PinSetupScreen(onPinSet: (String) -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = pin,
-            onValueChange = { if (it.length <= 4) pin = it }, // Restrict input to 4 digits
-            label = { Text("Enter PIN") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            visualTransformation = PasswordVisualTransformation(),
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
-        )
+        ) {
+            // Create 4 text fields for each digit of the PIN
+            repeat(4) { index ->
+                OutlinedTextField(
+                    value = if (index < pin.length) pin[index].toString() else "",
+                    onValueChange = { newValue ->
+                        // Ensure only single digit input for each field
+                        if (newValue.length <= 1 && newValue.all { it.isDigit() }) {
+                            // Update pin state
+                            pin = pin.replaceRange(index, index + 1, newValue)
+                            if (newValue.isEmpty() && pin.isNotEmpty()) {
+                                // Remove character when backspace is pressed
+                                pin = pin.removeRange(index, index + 1)
+                            }
+                        }
+                    },
+                    label = { Text("") }, // No label
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(4.dp) // Space between text fields
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
