@@ -78,6 +78,12 @@ fun PinSetupScreen(onPinSet: (String) -> Unit) {
                             } else {
                                 focusManager.clearFocus() // Remove focus after the last box
                             }
+
+                            // Automatically trigger the action when 4 digits are entered
+                            if (pin.length == 4) {
+                                onPinSet(pin)
+                                setPin(context = context, pin)
+                            }
                         } else if (newValue.isEmpty()) {
                             // Handle backspace, clear the current box
                             pin = pin.take(index) + pin.drop(index + 1)
@@ -88,7 +94,6 @@ fun PinSetupScreen(onPinSet: (String) -> Unit) {
                     visualTransformation = UtilityMethods.PinVisualTransformation(mask = '●'),
                     singleLine = true,
                     textStyle = TextStyle(
-//                        fontSize = 32.sp, // Large font size for the bullet
                         color = Color.Black,
                         textAlign = TextAlign.Center // Center the text horizontally
                     ),
@@ -112,7 +117,6 @@ fun PinSetupScreen(onPinSet: (String) -> Unit) {
             }
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
@@ -123,6 +127,7 @@ fun PinSetupScreen(onPinSet: (String) -> Unit) {
         }) {
             Text("Set PIN")
         }
+
     }
 }
 

@@ -80,6 +80,16 @@ fun PinUnlockScreen(onUnlock: () -> Unit) {
                             } else {
                                 focusManager.clearFocus() // Remove focus after the last box
                             }
+
+                            // Automatically trigger unlock when all digits are entered
+                            if (pin.length == 4) {
+                                if (pin == storedPin) {
+                                    Toast.makeText(context, "Unlock successful", Toast.LENGTH_SHORT).show()
+                                    onUnlock()
+                                } else {
+                                    Toast.makeText(context, "Incorrect PIN", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         } else if (newValue.isEmpty()) {
                             // Handle backspace, clear the current box
                             pin = pin.take(index) + pin.drop(index + 1)
