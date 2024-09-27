@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.android.banquetmanager.utils.AppConstants
 import com.android.banquetmanager.utils.UtilityMethods
 
 @Composable
@@ -140,12 +141,12 @@ fun PinUnlockScreen(onUnlock: () -> Unit) {
 fun getPin(context: Context): String? {
     val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
     val sharedPreferences = EncryptedSharedPreferences.create(
-        "secure_prefs",
+        AppConstants.SHARED_PREF_KEY,
         masterKeyAlias,
         context,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    return sharedPreferences.getString("user_pin", null)
+    return sharedPreferences.getString(AppConstants.SHARED_PREF_USER_PIN_KEY, null)
 }

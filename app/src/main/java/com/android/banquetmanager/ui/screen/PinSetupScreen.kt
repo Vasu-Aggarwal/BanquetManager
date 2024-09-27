@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.android.banquetmanager.utils.AppConstants
 import com.android.banquetmanager.utils.UtilityMethods
 
 @Composable
@@ -134,12 +135,12 @@ fun PinSetupScreen(onPinSet: (String) -> Unit) {
 fun setPin(context: Context, pin: String) {
     val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
     val sharedPreferences = EncryptedSharedPreferences.create(
-        "secure_prefs",
+        AppConstants.SHARED_PREF_KEY,
         masterKeyAlias,
         context,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    sharedPreferences.edit().putString("user_pin", pin).apply()
+    sharedPreferences.edit().putString(AppConstants.SHARED_PREF_USER_PIN_KEY, pin).apply()
 }

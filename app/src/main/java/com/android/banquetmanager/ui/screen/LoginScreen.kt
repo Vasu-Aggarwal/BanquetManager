@@ -28,7 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.android.banquetmanager.ui.component.Screen
+import com.android.banquetmanager.utils.AppConstants
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -163,6 +166,7 @@ fun performLogin(
     auth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                val user = task.result?.user
                 onLoginSuccess()
             } else {
                 val error = task.exception?.localizedMessage ?: "Login failed"
@@ -227,4 +231,30 @@ fun getActivity(context: Context): AppCompatActivity? {
         currentContext = currentContext.baseContext
     }
     return null
+}
+
+fun getPermissions(context: Context): String? {
+    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+    val sharedPreferences = EncryptedSharedPreferences.create(
+        AppConstants.SHARED_PREF_KEY,
+        masterKeyAlias,
+        context,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    return sharedPreferences.getString(AppConstants.SHARED_PREF_USER_PIN_KEY, null)
+}
+
+fun setPermissions(context: Context): String? {
+    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+    val sharedPreferences = EncryptedSharedPreferences.create(
+        AppConstants.SHARED_PREF_KEY,
+        masterKeyAlias,
+        context,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    return sharedPreferences.getString(AppConstants.SHARED_PREF_USER_PIN_KEY, null)
 }
