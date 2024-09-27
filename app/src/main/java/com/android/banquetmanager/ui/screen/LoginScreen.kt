@@ -234,7 +234,7 @@ fun getActivity(context: Context): AppCompatActivity? {
 }
 
 fun getPermissions(context: Context): Map<String, Boolean> {
-    val sharedPreferences = context.getSharedPreferences("app_permissions", Context.MODE_PRIVATE)
+    val sharedPreferences = context.getSharedPreferences(AppConstants.APP_PERMISSIONS, Context.MODE_PRIVATE)
 
     // Retrieve each permission, provide a default value (e.g., false if not set)
     val permissions = mapOf(
