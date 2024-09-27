@@ -233,28 +233,28 @@ fun getActivity(context: Context): AppCompatActivity? {
     return null
 }
 
-fun getPermissions(context: Context): String? {
-    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-    val sharedPreferences = EncryptedSharedPreferences.create(
-        AppConstants.SHARED_PREF_KEY,
-        masterKeyAlias,
-        context,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+fun getPermissions(context: Context): Map<String, Boolean> {
+    val sharedPreferences = context.getSharedPreferences("app_permissions", Context.MODE_PRIVATE)
+
+    // Retrieve each permission, provide a default value (e.g., false if not set)
+    val permissions = mapOf(
+        AppConstants.CAN_READ_DATA to sharedPreferences.getBoolean(AppConstants.CAN_READ_DATA, false),
+        AppConstants.CAN_WRITE_DATA to sharedPreferences.getBoolean(AppConstants.CAN_WRITE_DATA, false),
+        AppConstants.CAN_ADD_USERS to sharedPreferences.getBoolean(AppConstants.CAN_ADD_USERS, false),
+        AppConstants.CAN_CHECK_PRICES to sharedPreferences.getBoolean(AppConstants.CAN_CHECK_PRICES, false)
     )
 
-    return sharedPreferences.getString(AppConstants.SHARED_PREF_USER_PIN_KEY, null)
+    return permissions
 }
 
-fun setPermissions(context: Context): String? {
-    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-    val sharedPreferences = EncryptedSharedPreferences.create(
-        AppConstants.SHARED_PREF_KEY,
-        masterKeyAlias,
-        context,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+fun setPermissions(context: Context, permissions: Map<String, Boolean>) {
+    val sharedPreferences = context.getSharedPreferences(AppConstants.APP_PERMISSIONS, Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
 
-    return sharedPreferences.getString(AppConstants.SHARED_PREF_USER_PIN_KEY, null)
+    // Loop through the permissions map and save each permission in SharedPreferences
+    permissions.forEach { (key, value) ->
+        editor.putBoolean(key, value)
+    }
+
+    editor.apply() // Save changes
 }
