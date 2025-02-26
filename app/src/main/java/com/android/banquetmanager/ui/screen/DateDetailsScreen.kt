@@ -91,7 +91,9 @@ fun EventDetailsCard(event: Event, bookingViewmodel: BookingViewmodel, showPayme
                             IconType.PainterIcon(painterResource(id = R.drawable.non_vegetarian))
             )
             EventDetailRow(label = "Pax", value = event.pax.toString(), icon = IconType.ImageVectorIcon(Icons.Default.Person))
-            EventDetailRow(label = "Package Amount", value = UtilityMethods.formatAmount(event.packageAmount))
+            if (showPaymentDetails) {
+                EventDetailRow(label = "Package Amount", value = UtilityMethods.formatAmount(event.packageAmount))
+            }
             EventDetailRow(label = "Cocktail", value = if (event.cocktail) "Yes" else "No")
             if (event.cocktail)
                 EventDetailRow(label = "Cocktail amount", value = UtilityMethods.formatAmount(event.cocktailAmount))
