@@ -8,7 +8,7 @@ object AppConstants {
     const val SHARED_PREF_USER_PIN_KEY = "user_pin"
     const val APP_PERMISSIONS = "app_permissions"
     const val CAN_ADD_USERS = "canAddUsers"
-    const val CAN_CHECK_PRICES = "canCheckPrices"
+    const val CAN_CHECK_BALANCES = "canCheckBalances"
     const val CAN_READ_DATA = "canReadData"
     const val CAN_WRITE_DATA = "canWriteData"
     const val ROLE_NORMAL = "normal"  //Can read data

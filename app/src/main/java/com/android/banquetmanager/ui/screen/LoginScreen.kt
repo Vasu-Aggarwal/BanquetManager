@@ -27,16 +27,21 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.android.banquetmanager.data.viewmodel.UserViewModel
 import com.android.banquetmanager.ui.component.Screen
 import com.android.banquetmanager.utils.AppConstants
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    navAppController: NavController
+    navAppController: NavController,
+    userViewModel: UserViewModel = hiltViewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -45,6 +50,9 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var showBiometricOption by remember { mutableStateOf(false) }
+    var userPermissions by remember { mutableStateOf<Map<String, Boolean>?>(null) }
+    var userRole by remember { mutableStateOf<String?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     val appContext = ComponentActivity()
 
@@ -122,11 +130,27 @@ fun LoginScreen(
                 isLoading = true
                 errorMessage = null
                 performLogin(email, password,
-                    onLoginSuccess = {
+                    onLoginSuccess = { user ->
                         isLoading = false
                         Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
-                        // Navigate to the next screen
-                        navAppController.navigate(Screen.PinSetupScreen.route)
+
+                        // Fetch user permissions & role inside coroutine
+                        coroutineScope.launch {
+                            try {
+                                val (permissions, role) = userViewModel.getUserPermissions(user.uid)
+                                userPermissions = permissions
+                                userRole = role
+
+                                // Store permissions securely
+                                setPermissions(context, permissions!!)
+
+                                // Navigate only after fetching permissions
+                                navAppController.navigate(Screen.PinSetupScreen.route)
+                            } catch (e: Exception) {
+                                errorMessage = "Failed to load user data."
+                                Log.e("LoginScreen", "Error fetching permissions", e)
+                            }
+                        }
                     },
                     onLoginFailure = { error ->
                         isLoading = false
@@ -158,7 +182,7 @@ fun LoginScreen(
 fun performLogin(
     email: String,
     password: String,
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (FirebaseUser) -> Unit,
     onLoginFailure: (String) -> Unit
 ) {
     val auth = FirebaseAuth.getInstance()
@@ -167,7 +191,11 @@ fun performLogin(
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val user = task.result?.user
-                onLoginSuccess()
+                if (user != null) {
+                    onLoginSuccess(user)  // Pass the FirebaseUser object
+                } else {
+                    onLoginFailure("User not found")
+                }
             } else {
                 val error = task.exception?.localizedMessage ?: "Login failed"
                 Log.e("LoginScreen", "Login failed: $error")
@@ -241,7 +269,7 @@ fun getPermissions(context: Context): Map<String, Boolean> {
         AppConstants.CAN_READ_DATA to sharedPreferences.getBoolean(AppConstants.CAN_READ_DATA, false),
         AppConstants.CAN_WRITE_DATA to sharedPreferences.getBoolean(AppConstants.CAN_WRITE_DATA, false),
         AppConstants.CAN_ADD_USERS to sharedPreferences.getBoolean(AppConstants.CAN_ADD_USERS, false),
-        AppConstants.CAN_CHECK_PRICES to sharedPreferences.getBoolean(AppConstants.CAN_CHECK_PRICES, false)
+        AppConstants.CAN_CHECK_BALANCES to sharedPreferences.getBoolean(AppConstants.CAN_CHECK_BALANCES, false)
     )
 
     return permissions

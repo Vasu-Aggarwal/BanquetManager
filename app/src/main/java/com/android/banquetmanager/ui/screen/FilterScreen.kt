@@ -43,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -259,6 +261,7 @@ fun FilterSection(
     extraEventFilter : Boolean,
     onExtraEventFilterSelected : (Boolean) -> Unit,
 ) {
+    val context = LocalContext.current
 
     Column(Modifier.padding(16.dp)) {
         // Filter section visibility controlled by isFilterVisible
@@ -402,15 +405,29 @@ fun FilterSection(
                 }
 
                 item {
-                    Text(text = "Other:", fontSize = AppConstants.SUBHEADING_TEXT.sp, fontWeight = FontWeight.W500)
-                    // List of filter items
-                    val filters = listOf(
+                    // Fetch user permissions
+                    val userPermissions = remember { getPermissions(context) }
+                    val canCheckPrices = userPermissions[AppConstants.CAN_CHECK_BALANCES] == true
+
+                    Text(
+                        text = "Other:",
+                        fontSize = AppConstants.SUBHEADING_TEXT.sp,
+                        fontWeight = FontWeight.W500
+                    )
+
+                    // Build filter list dynamically based on permissions
+                    val filters = mutableListOf(
                         FilterItem("Cocktail", cocktailFilter, onCocktailFilterChanged),
                         FilterItem("Flower", flowerFilter, onFlowerFilterChanged),
                         FilterItem("DJ", djFilter, onDjFilterChanged),
                         FilterItem("Lunch", lunchFilter, onLunchFilterChanged),
                         FilterItem("Dinner", dinnerFilter, onDinnerFilterChanged),
-                        FilterItem("Payment Details", showPaymentDetails, onShowPaymentDetailsChanged),
+                        FilterItem(
+                            "Payment Details",
+                            showPaymentDetails,
+                            onShowPaymentDetailsChanged,
+                            isEnabled = canCheckPrices // Disable if user lacks permission
+                        ),
                         FilterItem("Fruit", fruitFilter, onFruitFilterSelected),
                         FilterItem("360", threeSixtyFilter, onThreeSixtyFilterSelected),
                         FilterItem("Extra Events", extraEventFilter, onExtraEventFilterSelected)
@@ -426,7 +443,8 @@ fun FilterSection(
                             CheckboxRow(
                                 label = filter.label,
                                 checked = filter.isChecked,
-                                onCheckedChange = filter.onCheckedChange
+                                onCheckedChange = filter.onCheckedChange,
+                                enabled = filter.isEnabled
                             )
                         }
                     }
@@ -441,19 +459,22 @@ fun FilterSection(
 fun CheckboxRow(
     label: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true // New parameter to handle disabled state
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) } // Click the whole row to toggle the checkbox
+            .clickable(enabled) { onCheckedChange(!checked) } // Disable clicking if not enabled
+            .alpha(if (enabled) 1f else 0.5f) // Reduce opacity when disabled
     ) {
         Checkbox(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = { if (enabled) onCheckedChange(it) }, // Prevent change if disabled
+            enabled = enabled
         )
-        Text(text = label, fontSize = AppConstants.NORMAL_TEXT.sp)
+        Text(text = label, fontSize = AppConstants.NORMAL_TEXT.sp, color = if (enabled) Color.Unspecified else Color.Gray)
     }
 }
 
@@ -511,5 +532,6 @@ fun DropdownMenuField(
 data class FilterItem(
     val label: String,
     val isChecked: Boolean,
-    val onCheckedChange: (Boolean) -> Unit
+    val onCheckedChange: (Boolean) -> Unit,
+    val isEnabled: Boolean = true
 )
