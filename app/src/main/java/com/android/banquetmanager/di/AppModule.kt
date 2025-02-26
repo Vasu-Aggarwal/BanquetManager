@@ -2,6 +2,8 @@ package com.android.banquetmanager.di
 
 import com.android.banquetmanager.data.repository.BookingRepository
 import com.android.banquetmanager.data.repository.BookingRepositoryImpl
+import com.android.banquetmanager.data.repository.UserRepository
+import com.android.banquetmanager.data.repository.UserRepositoryImpl
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -23,5 +25,11 @@ object AppModule {
     @Singleton
     fun provideBookingRepository(firestore: FirebaseFirestore): BookingRepository {
         return BookingRepositoryImpl(firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(firestore: FirebaseFirestore): UserRepository {
+        return UserRepositoryImpl(firestore)
     }
 }
